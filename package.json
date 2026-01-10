@@ -1,0 +1,21 @@
+{
+  "name": "8N1Term",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "pack": "tauri build",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.5",
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.9.1",
+    "split.js": "^1.6.5",
+    "sweetalert2": "^11.26.10"
+  }
+}
