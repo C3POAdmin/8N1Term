@@ -1,28 +1,15 @@
 # 8N1Term  
-**A next-generation serial terminal that removes friction, not adds it.**
+**A next-generation serial terminal that removes ASCII table lookup.**
 
 8N1Term is a modern re-thinking of the classic serial terminal.  
 No menus. No modal dialogs. No digging through settings. No ASCII charts.  
 Everything you need is **on screen, visible, and immediately usable**.
 
-This is a terminal designed for engineers, not for screenshots.
-
 ---
 
-## Philosophy
+## The only window
 
-Traditional terminals are stuck in the 1990s:
-- Hidden features behind menus
-- ASCII tables on Google
-- Cryptic shortcuts
-- Mode confusion (text vs hex vs raw)
-- Endless configuration panels
-
-8N1Term does the opposite.
-
-> **If you need it while working, it’s on screen. If it’s not essential, it’s not there.**
-
-The goal is zero cognitive overhead. You focus on the device, not the tool.
+![Main UI](screenshot.png)
 
 ---
 
