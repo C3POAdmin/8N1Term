@@ -46,9 +46,6 @@ No need to install full Visual Studio.
 In a terminal:
 cargo install tauri-cli --version "^2.0.0"
 
-makefile
-Copy code
-
 Verify:
 tauri --version
 

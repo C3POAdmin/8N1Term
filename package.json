@@ -1,7 +1,7 @@
 {
   "name": "8N1Term",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.9.5",
-    "vite": "^7.2.4"
+    "vite": "^7.3.0"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.9.1",

@@ -167,7 +167,7 @@ body {
 .dv-panel-content {
 }
 
-#kb_body{
+#kb_body {
   padding: 5px;
   box-sizing: border-box;
 
@@ -176,17 +176,68 @@ body {
   gap: 4px;
 
   overflow-x: clip;
-  scrollbar-gutter: stable;
-
-  /* keep this */
-  /* overflow-y: auto;  <-- only if this is your scroll container */
 }
 
-#kb_body > * { min-width: 0; }
-#kb_body{ max-width: 100%; }
 
+#rx_body{
+  padding: 5px;
+  box-sizing: border-box;
 
-/* ASCII key */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 30px);
+  gap: 2px;
+
+  overflow-x: clip;
+}
+
+#rx_body > * {
+  line-height: 1;
+	grid-template-columns: repeat(auto-fit, 20px) !important
+}
+#kb_body, #rx_body {
+  align-content: start;   /* ← THIS is the big one */
+}
+.ascii-rx {
+  position: relative;
+  width:30px;
+  height: 28px;
+  border-radius: 6px;
+
+  background: transparent;
+  border: 2px solid rgba(255, 255, 0, 0.25); /* Tron outline */
+
+  color: #e5e7eb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.ascii-tx {
+  position: relative;
+  width:30px;
+  height: 28px;
+  border-radius: 6px;
+
+  background: transparent;
+  border: 2px solid rgba(0, 255, 255, 0.25); /* Tron outline */
+
+  color: #e5e7eb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+  overflow: hidden;
+}
+
 .ascii-key {
   position: relative;
   width:50px;
@@ -219,7 +270,7 @@ body {
 }
 
 /* Hex (top-left) */
-.ascii-hex {
+.ascii-hex, .ascii-hex2 {
   position: absolute;
   top: 2px;
   left: 2px;
@@ -238,6 +289,11 @@ body {
   font-weight: 600;
 }
 
+.ascii-break {
+  grid-column: 1 / -1;   /* force next item onto new row */
+  height: 0;             /* no visual height */
+}
+
 /* Main ASCII label */
 .ascii-label {
   margin-top:10px;
@@ -247,12 +303,15 @@ body {
   pointer-events: none;
 }
 
+.ascii-small {
+  font-size: 8px;
+}
+
 .ascii-key.ascii-hot {
   border-color: rgba(0, 255, 255, 0.95);
   transform: translateY(1px);
 }
 
-/* Left label, centered in its half */
 .tx-label {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
@@ -265,35 +324,34 @@ body {
   text-align: left;
 }
 
-/* Common box styling */
 .tx-box {
-  height: 100%;
-  min-height: 0;
+  min-height: 25px;
+  max-height: 80px;
   box-sizing: border-box;
 
-  border: 2px solid rgba(255,255,255,0.85); /* default (TEXT) */
-  border-radius: 12px;
+  border: 2px solid rgba(255,255,255,0.85);
+  border-radius: 10px;
 
   padding: 6px 8px;
-  overflow: hidden;
+
+  overflow-y: auto;
+  overflow-x: hidden;
 
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
   line-height: 1.2;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
-/* Hex box: hot green border */
 .tx-hex {
   border-color: rgba(34, 255, 136, 0.95);
 }
 
-/* Text box: white border (already default, but explicit) */
 .tx-text {
   border-color: rgba(255,255,255,0.85);
 }
-/* after-glow latch (last key) */
+
 .ascii-key.ascii-latched {
   border-color: rgba(0, 255, 255, 0.85);
   box-shadow:
@@ -476,3 +534,37 @@ body {
   font-weight: bold;
   cursor: pointer;
 }
+
+[data-tip] {
+  position: relative;
+}
+
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+
+  top: 100%;          /* ONE vertical rule */
+  right: 0;           /* predictable anchor */
+  margin-top: 6px;    /* spacing instead of fake bottom */
+
+  background: black;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+
+  font-size: 14px;
+  line-height: 1.4;   /* THIS fixes the height issue */
+  white-space: nowrap;
+
+  border: 2px solid green;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+  z-index: 1000;
+}
+
+[data-tip]:hover::after {
+  opacity: 1;
+}
+

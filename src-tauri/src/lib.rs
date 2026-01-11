@@ -13,7 +13,8 @@ struct PortHandle {
 }
 
 pub struct SerialState {
-    ports: std::sync::Mutex<std::collections::HashMap<String, PortHandle>>,
+ 
+ports: std::sync::Mutex<std::collections::HashMap<String, PortHandle>>,
 }
 
 #[derive(Serialize,Clone)]
@@ -27,6 +28,7 @@ struct PortInfo {
 
 #[tauri::command]
 fn list_ports() -> Result<Vec<PortInfo>, String> {
+    println!("[command] list_ports");
     collect_ports()
 }
 
@@ -100,7 +102,7 @@ fn open_port(
     baud: u32,
 ) -> Result<(), String> {
 
-    println!("open_port() called for {}", path);
+    println!("[command] open_port() called for {}", path);
 
     // ---- phase 1: check only
     {
@@ -156,8 +158,8 @@ fn open_port(
             match reader.read(&mut buf) {
                 Ok(n) => {
                     if n > 0 {
-                        println!("bytes: {:?}", &buf[..n]);
-                        let _ = app.emit("serial_rx", buf[..n].to_vec());
+						println!("reader in: {} bytes", n);
+						let _ = app.emit("serial_rx", buf[..n].to_vec());
                     }
                 }
 
@@ -191,96 +193,13 @@ fn open_port(
     Ok(())
 }
 
-
-
-#[tauri::command]
-fn open_port2(
-    app: tauri::AppHandle,
-    state: tauri::State<'_, SerialState>,
-    path: String,
-    baud: u32,
-) -> Result<(), String> {
-
-    println!("open_port() called for {}", path);
-
-    // ---- phase 1: check only
-    {
-        let ports = state.ports.lock().unwrap();
-        if ports.contains_key(&path) {
-            let _ = app.emit("serial_state", format!("closed: {}", path));
-            return Err(format!("port already open: {}", path));
-        }
-    } // mutex released HERE
-
-    let port = serialport::new(&path, baud)
-        .timeout(std::time::Duration::from_millis(50))
-        .open()
-        .map_err(|e| e.to_string())?;
-
-    println!("serial port opened");
-
-    // IMPORTANT: don't clone yet while debugging
-	let mut reader = port.try_clone().map_err(|e| e.to_string())?;
-
-    let alive = Arc::new(AtomicBool::new(true));
-    let alive_reader = alive.clone();
-
-	let app2 = app.clone();
-    let app = app.clone();
-    let path_clone = path.clone();
-
-    std::thread::spawn(move || {
-        println!("serial reader thread started for {}", path_clone);
-
-        let mut buf = [0u8; 4096];
-
-        while alive_reader.load(Ordering::Relaxed) {
-			match reader.read(&mut buf) {
-				Ok(n) => {
-					if n > 0 {
-						println!("bytes: {:?}", &buf[..n]);
-						let _ = app.emit("serial_rx", buf[..n].to_vec());
-					}
-				}
-
-				Err(ref e) if e.kind() == ErrorKind::TimedOut => {
-					// normal idle, do nothing
-				}
-
-				Err(e) => {
-					println!("serial read error: {}", e);
-					let _ = app.emit("serial_state", format!("closed: {}", path_clone));
-					break;
-				}
-			}
-		}
-        println!("serial reader thread exiting");
-    });
-
-    // ---- phase 2: register ownership
-    {
-        let mut ports = state.ports.lock().unwrap();
-        ports.insert(
-            path.clone(),
-            PortHandle {
-                port,
-                alive,
-            },
-        );
-    }
-
-    let _ = app2.emit("serial_state", format!("opened: {}", path));
-    println!("spawned serial reader thread");
-
-    Ok(())
-}
-
-
 #[tauri::command]
 fn close_port(
 		app: tauri::AppHandle,
 		state: tauri::State<'_, SerialState>
 	) -> Result<(), String> {
+    println!("[command] close_port");
+
     let mut ports = state.ports.lock().unwrap();
 
     let app = app.clone();
@@ -300,7 +219,8 @@ fn send_bytes(
     data: Vec<u8>,
 ) -> Result<(), String> {
 
-    let mut ports = state.ports.lock().unwrap();
+  println!("[command] send_bytes {}",data.len());
+  let mut ports = state.ports.lock().unwrap();
     let handle = ports.get_mut(&path).ok_or("port not open")?;
 
     std::io::Write::write_all(&mut *handle.port, &data)
@@ -311,6 +231,8 @@ fn send_bytes(
 
 #[tauri::command]
 fn restart_app(app: AppHandle) -> Result<(), String> {
+    println!("[command] restart_app");
+
     let exe = std::env::current_exe()
         .map_err(|e| e.to_string())?;
 
@@ -325,6 +247,8 @@ fn restart_app(app: AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 fn load_bytes(app: tauri::AppHandle) -> Result<Vec<u8>, String> {
+    println!("[command] load_bytes");
+
     let fp = app
         .dialog()
         .file()
@@ -336,21 +260,56 @@ fn load_bytes(app: tauri::AppHandle) -> Result<Vec<u8>, String> {
 }
 
 #[tauri::command]
-fn save_bytes(app: tauri::AppHandle, data: Vec<u8>) -> Result<(), String> {
-    let fp = app
-        .dialog()
-        .file()
-        .blocking_save_file()
-        .ok_or("No file selected")?;
+fn save_bytes(app: tauri::AppHandle, filename: String, data: Vec<u8>) -> Result<(), String> {
+    let app2 = app.clone();
+    let data = Arc::new(data);
 
-    let path = fp.into_path().map_err(|_| "Non-filesystem path/URI")?;
-    std::fs::write(path, data).map_err(|e| e.to_string())
+    // optional: choose a sensible starting folder
+    let start_dir = app
+        .path()
+        .document_dir()
+        .or_else(|_| app.path().home_dir())
+        .ok();
+
+    let mut dlg = app.dialog().file().set_file_name(filename);
+    if let Some(dir) = start_dir {
+        dlg = dlg.set_directory(dir);
+    }
+
+    dlg.save_file(move |file_path| {
+        let Some(fp) = file_path else {
+            // user cancelled
+            return;
+        };
+
+        let Ok(path) = fp.into_path() else {
+            // non-filesystem URI (mobile etc)
+            let _ = app2.emit("save_bytes_error", "Non-filesystem path/URI");
+            return;
+        };
+
+        let data = data.clone();
+        tauri::async_runtime::spawn(async move {
+            let res = std::fs::write(&path, &*data).map_err(|e| e.to_string());
+            match res {
+                Ok(_) => {
+                    let _ = app2.emit("save_bytes_done", path.to_string_lossy().to_string());
+                }
+                Err(e) => {
+                    let _ = app2.emit("save_bytes_error", e);
+                }
+            }
+        });
+    });
+
+    Ok(())
 }
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_dialog::init())
     .manage(SerialState {
       ports: Mutex::new(HashMap::new()),
     })
@@ -359,9 +318,9 @@ pub fn run() {
       open_port,
       close_port,
       send_bytes,
-	  restart_app,
-	  save_bytes,
-	  load_bytes
+      restart_app,
+      save_bytes,
+      load_bytes
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {
@@ -371,8 +330,8 @@ pub fn run() {
             .build(),
         )?;
       }
-	  start_port_watcher(app.handle().clone());
 
+      start_port_watcher(app.handle().clone());
       Ok(())
     })
     .run(tauri::generate_context!())

@@ -15,7 +15,7 @@
         "title": "8N1Term",
         "width": 900,
         "height": 600,
-		"minWidth": 850,
+		"minWidth": 800,
 		"minHeight": 600,
         "resizable": true,
         "fullscreen": false
