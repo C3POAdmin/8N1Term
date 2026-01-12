@@ -4,7 +4,7 @@ use serde::Serialize;
 use std::process::Command;
 use std::io::ErrorKind;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
-use tauri::{AppHandle, Emitter};
+use tauri::{Manager, AppHandle, Emitter};
 use tauri_plugin_dialog::DialogExt;
 
 struct PortHandle {
@@ -13,8 +13,7 @@ struct PortHandle {
 }
 
 pub struct SerialState {
- 
-ports: std::sync::Mutex<std::collections::HashMap<String, PortHandle>>,
+	ports: std::sync::Mutex<std::collections::HashMap<String, PortHandle>>,
 }
 
 #[derive(Serialize,Clone)]
@@ -91,9 +90,6 @@ fn start_port_watcher(app: tauri::AppHandle) {
     });
 }
 
-
-use tauri::Manager; // <-- add this
-
 #[tauri::command]
 fn open_port(
     app: tauri::AppHandle,
@@ -109,7 +105,7 @@ fn open_port(
         let ports = state.ports.lock().unwrap();
 		println!("[open_port] map contains {} = {}", path, ports.contains_key(&path));
         if ports.contains_key(&path) {
-			  println!("[open_port] EARLY RETURN: already open in map");
+			println!("[open_port] EARLY RETURN: already open in map");
             let _ = app.emit("serial_state", format!("closed: {}", path));
             return Err(format!("port already open: {}", path));
         }
@@ -120,12 +116,12 @@ fn open_port(
 		.timeout(std::time::Duration::from_millis(50))
 		.open()
 		.map_err(|e| {
-			let msg = format!("open failed for {}: {}", path, e);
-			println!("[open_port] {}", msg);
-			msg
+			println!("[open_port] open failed for {}: {}", path, e);
+			let _ = app.emit("serial_state", format!("failed: {}", path));
+			format!("open failed") // satisfy type, but you don't care
 		})?;
 
-    println!("serial port opened");
+    println!("[open_port] serial port opened");
 
     // IMPORTANT: don't clone yet while debugging
     let mut reader = port.try_clone().map_err(|e| e.to_string())?;

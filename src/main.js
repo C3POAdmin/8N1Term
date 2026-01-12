@@ -10,6 +10,7 @@ let		current_baud = null;
 let 	lastLatched  = null;
 let 	latchTimer 	 = 0;
 let     opened		 = false;
+let		fail_msg	 = null;
 let 	bs_enter 	 = false;
 let		auto_connect = true;
 let		auto_reconnect = true;
@@ -71,6 +72,10 @@ const unlisten_serial = await listen('serial_state', (event) => {
 	try {
 		const val = event.payload;
 		console.log('serial_state',val);
+		if(val.includes('failed'))
+			fail_msg = 'Access Denied';
+		else
+			fail_msg = null;
 		opened = val.includes('opened');
 		updateConnected();
 	} catch (e) {
@@ -354,7 +359,11 @@ function updateConnected() {
 			el_disconnect.hidden = false;
 		} else {
 			console.log('port close');
-			el_connection.innerHTML = RED+' Disconnected'
+			if(fail_msg !== null)
+				var msg = ' Access Denied';
+			else
+				var msg = ' Disconnected';
+			el_connection.innerHTML = RED+msg;
 			el_disconnect.hidden = true;
 			el_connect.hidden 	 = false;
 		}
