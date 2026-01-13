@@ -411,11 +411,23 @@ root.innerHTML =
 
   <div id="kb_panel" class="panel  no-select">
 	  <div class="title">
-		  <div style="float:left;width:80px;padding-top:2px">
+		<div style="padding-top:2px">
+		  <div style="float:left;width:80px;">
 			KEYBOARD
 		  </div>
+		  <div style="float:left;margin-right:10px;color:#22ff88">
+			HEX
+		  </div>
+		  <div style="float:left;margin-right:10px;color:white">
+			ASCII
+		  </div>
+		  <div style="float:left;color:#ffd84d">
+			DEC
+		  </div>
+		</div>
 		  <div style="float:right;margin-right:-3px" id="l_kb"></div>
 		  <div style="float:right" id="r_kb"></div>
+		  
 	  </div>
     <div class="body" id="kb_body"></div>
   </div>`;
