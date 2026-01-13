@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "8N1Term",
-  "version": "1.0.2", 
+  "version": "1.0.3", 
   "identifier": "com.8N1term.dev",
   "build": {
     "frontendDist": "../dist",
