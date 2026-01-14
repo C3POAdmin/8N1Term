@@ -39,7 +39,7 @@ Everything is **on screen, visible, and immediately usable**.
 
 ### 📤 Clean File Saving Separation
 - **Text (.txt)**: As-Is  
-- **Hex (.hex)**: Formatted, controlled  
+- **Hex (.hex)**: Formatted, human readable
 - **Raw (.bin)**: As-Is  
 
 ---
