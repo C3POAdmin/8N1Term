@@ -38,9 +38,9 @@ Everything is **on screen, visible, and immediately usable**.
 ---
 
 ### 📤 Clean File Saving Separation
-- **Text**: exactly what was received  
-- **Hex**: formatted, controlled  
-- **Raw Save**: binary ready
+- **Text (.txt)**: As-Is  
+- **Hex (.hex)**: Formatted, controlled  
+- **Raw (.bin)**: As-Is  
 
 ---
 

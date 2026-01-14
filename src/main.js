@@ -1161,13 +1161,13 @@ async function pickFileType(save = true) {
       html: `
         <div class="ft-wrap" role="table">
           <div class="ft-row" role="row">
-            <button class="ft-btn" type="button" style="width:300px" data-type="text">Text</button>
+            <button class="ft-btn" type="button" style="width:300px" data-type="text">Text (As-is)</button>
           </div>
           <div class="ft-row" role="row">
-            <button class="ft-btn" type="button" style="width:300px" data-type="bin">Binary</button>
+            <button class="ft-btn" type="button" style="width:300px" data-type="bin">Binary (As-is)</button>
           </div>
           <div class="ft-row" role="row">
-            <button class="ft-btn" type="button" style="width:300px" data-type="hex">HEX Representation (in text)</button>
+            <button class="ft-btn" type="button" style="width:300px" data-type="hex">HEX Representation (In text)</button>
           </div>
         </div>
       `,
@@ -1222,7 +1222,7 @@ async function saveBytes() {
 	if(type === null)
 		return;
 	let data = copyObj(rx_buffer);
-	let filename = 'unnamed.bin';
+	let filename = 'unnamed.raw';
 	if(type === 'text')
 		filename = 'unnamed.txt';
 	else if(type === 'hex') {
