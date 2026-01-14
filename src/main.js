@@ -19,7 +19,7 @@ let		EOL			 = true;
 let		CR 		 	 = true;
 let		LF 		 	 = true;
 let		scroll		 = true;
-let		hextext 	 	 = true;
+let		texthex 	 = true;
 let 	hexEl 		 = null;
 let 	textEl 		 = null;
 let 	tx_buffer    = [];
@@ -49,7 +49,7 @@ let unlisten_rx = await listen('serial_rx', (event) => {
 		let frag = renderRX(bytes, false);
 		el_rx.appendChild(frag);
 		doEcho();
-		doHexText();
+		dotexthex();
 		doScroll();
 	} catch (e) {
 		console.log('serial_rx',e);
@@ -169,16 +169,16 @@ const tog_reconnect = createToggle({
 l_rx.appendChild(tog_reconnect);
 */
 
-const tog_hextext = createToggle({
-  label: "HEX/Text",
-  initial: hextext,
+const tog_texthex = createToggle({
+  label: "Text/Hex",
+  initial: texthex,
   onChange: (label, state) => {
     console.log(label, state);
-	hextext = state;
-	doHexText();
+	texthex = state;
+	dotexthex();
   }
 });
-l_rx.appendChild(tog_hextext);
+l_rx.appendChild(tog_texthex);
 
 const tog_eol = createToggle({
   label: "EOL",
@@ -306,12 +306,12 @@ function doScroll() {
 		el_rx.scrollTop = el_rx.scrollHeight;
 }
 
-function doHexText() {
+function dotexthex() {
 	document.querySelectorAll('.ascii-hex').forEach(el => {
-		el.style.display = hextext ? 'none' : ''
+		el.style.display = texthex ? '' : 'none'
 	});
 	document.querySelectorAll('.ascii-hide').forEach(el => {
-		 el.style.opacity = hextext ? '0.4' : '1';
+		 el.style.opacity = texthex ? '1' : '0.4';
 	})
 }
 
@@ -482,7 +482,7 @@ async function sendBuffer() {
 		el_rx.appendChild(frag);
 		doEcho();
 		doEOL();
-		doHexText();
+		dotexthex();
 		doScroll();
 		clearTX();
 	} catch(e) {
@@ -510,7 +510,7 @@ async function reSendBuffer() {
 		el_rx.appendChild(frag);
 		doEcho();
 		doEOL();
-		doHexText();
+		dotexthex();
 		doScroll();
 	} catch(e) {
 		console.log('reSendBuffer()', e);	
