@@ -22,22 +22,23 @@ Everything is **on screen, visible, and immediately usable**.
 ---
 
 ### 🧠 On-Screen ASCII Keyboard
+
 - Full ASCII set as **clickable keys**
 - Send control characters, non-printables, and edge cases instantly
 - Works alongside normal typing
 
 ---
 
-### 🚀 High-Speed Capture (Designed for Real Data)
+### 🚀 High-Speed Capture (With Low Level Stability)
 
 - Use the **Capture button** to start buffering raw data at full speed  
 - Capture **binary streams** without UI stalls, parsing, or crashes  
-- Start / Stop / Save workflow prevents dropped bytes and partial files  
-- Byte-perfect output for **offline analysis, replay, and tooling**
+- Byte-perfect output for **offline analysis**
 
 ---
 
 ### 📤 Clean File Saving Separation
+
 - **Text (.txt)**: As-Is  
 - **Hex (.hex)**: Formatted, human readable
 - **Raw (.bin)**: As-Is  
@@ -45,6 +46,7 @@ Everything is **on screen, visible, and immediately usable**.
 ---
 
 ### ⚡ Built for Real Engineering
+
 For:
 - Firmware bring-up  
 - Protocol debugging  
