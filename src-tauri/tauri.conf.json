@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "8N1Term",
-  "version": "1.0.3", 
+  "version": "1.0.4", 
   "identifier": "com.8N1term.dev",
   "build": {
     "frontendDist": "../dist",
@@ -13,9 +13,9 @@
     "windows": [
       {
         "title": "8N1Term",
-        "width": 900,
+        "width": 1000,
         "height": 600,
-		"minWidth": 800,
+		"minWidth": 880,
 		"minHeight": 600,
         "resizable": true,
         "fullscreen": false

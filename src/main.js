@@ -22,9 +22,10 @@ let		scroll		 = true;
 let		hextext 	 	 = true;
 let 	hexEl 		 = null;
 let 	textEl 		 = null;
-let 	tx_buffer  = [];
+let 	tx_buffer    = [];
 let 	last_buffer  = [];
 let		rx_buffer	 = [];
+let 	cap_buffer   = [];
 
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
@@ -148,6 +149,13 @@ r_rx.insertAdjacentHTML(
 const el_clear = document.getElementById("clear_rx")
 el_clear.addEventListener("click", clearRX);
 el_disconnect.hidden = true;
+
+r_rx.insertAdjacentHTML(
+  'beforeend',
+  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="cap_rx">Capture</button>'
+);
+const el_cap = document.getElementById("cap_rx")
+el_cap.addEventListener("click", highSpeedCaptureDialog);
 
 /*
 const tog_reconnect = createToggle({
@@ -415,19 +423,26 @@ root.innerHTML =
 		  <div style="float:left;width:80px;">
 			KEYBOARD
 		  </div>
-		  <div style="float:left;margin-right:10px;color:#22ff88">
-			HEX
+		  <div style="float:left;font-size:10px;margin-bottom:-2px;margin-top:-1px">
+			  <div style="float:left" class="bracket-open">
+				&nbsp;
+			  </div>
+			  <div style="float:left;margin-top:-4px;color:#22ff88">
+				HEX
+			  </div>
+			  <div style="float:left;margin-left:-10px;margin-top:8px;color:white">
+				ASCII
+			  </div>
+			  <div style="float:left;margin-left:-10px;margin-top:-4px;color:#ffd84d">
+				DEC
+			  </div>
+			  <div style="float:left" class="bracket-close">
+				&nbsp;
+			  </div>  
 		  </div>
-		  <div style="float:left;margin-right:10px;color:white">
-			ASCII
-		  </div>
-		  <div style="float:left;color:#ffd84d">
-			DEC
-		  </div>
-		</div>
-		  <div style="float:right;margin-right:-3px" id="l_kb"></div>
+		  <div style="float:right;margin-right:-3px;margin-top:-3px;" id="l_kb"></div>
 		  <div style="float:right" id="r_kb"></div>
-		  
+		  </div>
 	  </div>
     <div class="body" id="kb_body"></div>
   </div>`;
@@ -1217,3 +1232,92 @@ async function saveBytes() {
 	console.log('saveBytes()', data);
 	await invoke("save_bytes", { filename, data});
 }
+
+function highSpeedCaptureDialog() {
+  let capturing = false;
+
+  return new Promise((resolve) => {
+    Swal.fire({
+      title: "High speed capture",
+      html: `
+        <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+          
+          <div style="display:flex; gap:10px;">
+            <button id="hs-start" class="ft-btn" style="width:90px;">Start</button>
+            <button id="hs-stop" class="ft-btn" style="width:90px;" disabled>Stop</button>
+            <button id="hs-save" class="ft-btn" style="width:90px;" disabled>Save</button>
+          </div>
+
+          <div id="hs-status" style="margin-top:8px; font-size:13px; opacity:0.85;">
+            Idle – no data
+          </div>
+
+        </div>
+      `,
+      showConfirmButton: false,
+      showCancelButton: true,
+      allowOutsideClick: false,
+      allowEscapeKey: true,
+      background: "#0b1220",
+      color: "#e5e7eb",
+      width: 360,
+      customClass: {
+        popup: "ft-swal",
+        title: "ft-title",
+        cancelButton: "ft-cancel",
+      },
+      didOpen: () => {
+        const startBtn = document.getElementById("hs-start");
+        const stopBtn  = document.getElementById("hs-stop");
+        const saveBtn  = document.getElementById("hs-save");
+        const statusEl = document.getElementById("hs-status");
+
+        function setState(state) {
+          if (state === "idle") {
+            capturing = false;
+            startBtn.disabled = false;
+            stopBtn.disabled  = true;
+            saveBtn.disabled  = true;
+            statusEl.textContent = "Idle – no data";
+          }
+
+          if (state === "capturing") {
+            capturing = true;
+            startBtn.disabled = true;
+            stopBtn.disabled  = false;
+            saveBtn.disabled  = true;
+            statusEl.textContent = "Capturing… receiving data";
+          }
+
+          if (state === "stopped") {
+            capturing = false;
+            startBtn.disabled = true;
+            stopBtn.disabled  = true;
+            saveBtn.disabled  = false;
+            statusEl.textContent = "Capture stopped – ready to save";
+          }
+        }
+
+        // initial state
+        setState("idle");
+
+        startBtn.addEventListener("click", () => {
+          setState("capturing");
+          // start capture loop externally
+        });
+
+        stopBtn.addEventListener("click", () => {
+          setState("stopped");
+          // stop capture loop externally
+        });
+
+        saveBtn.addEventListener("click", () => {
+          // trigger save externally
+        });
+      }
+    }).then(() => {
+      resolve({ action: "cancel" });
+    });
+  });
+}
+
