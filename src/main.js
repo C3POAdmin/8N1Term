@@ -26,7 +26,8 @@ let 	tx_buffer    = [];
 let 	last_buffer  = [];
 let		rx_buffer	 = [];
 let 	cap_buffer   = [];
-
+let 	capturing 	 = false;
+  
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
@@ -44,13 +45,18 @@ await closePort();
 let unlisten_rx = await listen('serial_rx', (event) => {
 	try {
 		const bytes = new Uint8Array(event.payload);
-		console.log('RX length:', bytes.length);
+		if(capturing) {
+			cap_buffer.push(...bytes);
+			bytesEl.textContent(niceBytes(cap_buffer.length));
+			return;
+		}
 		rx_buffer.push(...bytes);
 		let frag = renderRX(bytes, false);
 		el_rx.appendChild(frag);
 		doEcho();
 		dotexthex();
 		doScroll();
+		console.log('RX length:', bytes.length);
 	} catch (e) {
 		console.log('serial_rx',e);
 	}
@@ -104,6 +110,8 @@ const el_rx_title   = document.getElementById("rx_title");
 const el_tx_hex		= document.querySelector("#tx-hex");
 const el_tx_text	= document.querySelector("#tx-text");
 const el_connection = document.getElementById("connection");
+let   bytesEl		= null;		// set when capture window is open
+
 //-----------------------------RX-------------------//
 
 r_rx.insertAdjacentHTML(
@@ -1164,7 +1172,7 @@ async function pickFileType(save = true) {
             <button class="ft-btn" type="button" style="width:300px" data-type="text">Text (As-is)</button>
           </div>
           <div class="ft-row" role="row">
-            <button class="ft-btn" type="button" style="width:300px" data-type="bin">Binary (As-is)</button>
+            <button class="ft-btn" type="button" style="width:300px" data-type="raw">Raw (As-is)</button>
           </div>
           <div class="ft-row" role="row">
             <button class="ft-btn" type="button" style="width:300px" data-type="hex">HEX Representation (In text)</button>
@@ -1234,26 +1242,21 @@ async function saveBytes() {
 }
 
 function highSpeedCaptureDialog() {
-  let capturing = false;
-
   return new Promise((resolve) => {
     Swal.fire({
       title: "High speed capture",
-      html: `
-        <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
-          
+      html: 
+	   `<div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
           <div style="display:flex; gap:10px;">
             <button id="hs-start" class="ft-btn" style="width:90px;">Start</button>
             <button id="hs-stop" class="ft-btn" style="width:90px;" disabled>Stop</button>
             <button id="hs-save" class="ft-btn" style="width:90px;" disabled>Save</button>
           </div>
-
           <div id="hs-status" style="margin-top:8px; font-size:13px; opacity:0.85;">
             Idle – no data
           </div>
-
-        </div>
-      `,
+          <div id="hs-bytes" style="margin-top:8px; font-size:13px;"></div>
+        </div>`,
       showConfirmButton: false,
       showCancelButton: true,
       allowOutsideClick: false,
@@ -1271,6 +1274,7 @@ function highSpeedCaptureDialog() {
         const stopBtn  = document.getElementById("hs-stop");
         const saveBtn  = document.getElementById("hs-save");
         const statusEl = document.getElementById("hs-status");
+        bytesEl = document.getElementById("hs-bytes");
 
         function setState(state) {
           if (state === "idle") {
@@ -1312,7 +1316,7 @@ function highSpeedCaptureDialog() {
         });
 
         saveBtn.addEventListener("click", () => {
-          // trigger save externally
+          resolve({ action: "save" });
         });
       }
     }).then(() => {
@@ -1321,3 +1325,15 @@ function highSpeedCaptureDialog() {
   });
 }
 
+function niceBytes(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+
+    const kb = bytes / 1024;
+    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+
+    const mb = kb / 1024;
+    if (mb < 1024) return `${mb.toFixed(2)} MB`;
+
+    const gb = mb / 1024;
+    return `${gb.toFixed(3)} GB`;
+}

@@ -11,9 +11,6 @@ Everything is **on screen, visible, and immediately usable**.
 
 ![Main UI](screenshot.png)
 
-- ❌ No menus  
-- ❌ No tabs  
-
 ---
 
 ### 📥 RX On-screen Options
@@ -56,11 +53,11 @@ Everything is **on screen, visible, and immediately usable**.
 
 ---
 
-### 📤 Clean File Saving Separation
+### 📤 Clean File Loading/Saving Separation
 
-- **TXT (.txt)**: As-Is  
-- **HEX (.hex)**: Formatted, human readable
-- **RAW (.bin)**: As-Is  
+- **TXT**: As-Is  
+- **RAW**: As-Is  
+- **HEX**: Formatted, human readable
 
 ---
 
