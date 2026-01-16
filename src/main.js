@@ -47,7 +47,7 @@ let unlisten_rx = await listen('serial_rx', (event) => {
 		const bytes = new Uint8Array(event.payload);
 		if(capturing) {
 			cap_buffer.push(...bytes);
-			bytesEl.textContent(niceBytes(cap_buffer.length));
+			bytesEl.textContent = niceBytes(cap_buffer.length);
 			return;
 		}
 		rx_buffer.push(...bytes);
@@ -1225,25 +1225,38 @@ async function loadBytes() {
 	renderTXBytes(tx_buffer);	
 }
 
-async function saveBytes() {
-	let type = await pickFileType();
-	if(type === null)
-		return;
-	let data = copyObj(rx_buffer);
-	let filename = 'unnamed.raw';
-	if(type === 'text')
-		filename = 'unnamed.txt';
-	else if(type === 'hex') {
-		filename = 'unnamed.hex';
-		data = array2HEX(data);
+async function saveBytes(buff_t = 'rx') {
+	try {
+		let type = await pickFileType();
+		if(type === null)
+			return;
+		
+		if(buff_t === 'rx')
+			var data = copyObj(rx_buffer);
+		else if(buff_t === 'cap')
+			var data = copyObj(cap_buffer);
+		else 
+			console.log('ERROR: Unknown buffer type');
+		
+		let filename = 'unnamed.raw';
+		if(type === 'text')
+			filename = 'unnamed.txt';
+		else if(type === 'hex') {
+			filename = 'unnamed.hex';
+			data = array2HEX(data);
+		}
+		console.log('saveBytes()', data.length);
+		await invoke("save_bytes", { filename, data});
+	} catch (e) {
+		console.log('saveBytes() ERROR', buff_t, type, e);
 	}
-	console.log('saveBytes()', data);
-	await invoke("save_bytes", { filename, data});
 }
 
 async function startCapture() {
 	const res = await highSpeedCaptureDialog();
-	console.log('capture', res);
+	if(res.action !== 'save')
+		return;
+	saveBytes('cap');
 }
 
 function highSpeedCaptureDialog() {
@@ -1279,7 +1292,7 @@ function highSpeedCaptureDialog() {
         const stopBtn  = document.getElementById("hs-stop");
         const saveBtn  = document.getElementById("hs-save");
         const statusEl = document.getElementById("hs-status");
-        bytesEl = document.getElementById("hs-bytes");
+        bytesEl 	   = document.getElementById("hs-bytes");
 
         function setState(state) {
           if (state === "idle") {
@@ -1292,6 +1305,7 @@ function highSpeedCaptureDialog() {
 
           if (state === "capturing") {
             capturing = true;
+			cap_buffer = [];
             startBtn.disabled = true;
             stopBtn.disabled  = false;
             saveBtn.disabled  = true;
@@ -1321,6 +1335,7 @@ function highSpeedCaptureDialog() {
         });
 
         saveBtn.addEventListener("click", () => {
+  		  Swal.close();
           resolve({ action: "save" });
         });
       }
