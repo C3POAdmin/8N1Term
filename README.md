@@ -71,7 +71,5 @@ For:
 - Long sessions  
 - Large buffers  
 
-It does not assume your data is pretty.  
-It does not assume your device is polite.
 
-
+“I built it to make messy serial streams readable — without crashes, split screens, or ASCII chart lookups.”
