@@ -163,7 +163,7 @@ r_rx.insertAdjacentHTML(
   '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="cap_rx">Capture</button>'
 );
 const el_cap = document.getElementById("cap_rx")
-el_cap.addEventListener("click", highSpeedCaptureDialog);
+el_cap.addEventListener("click", startCapture);
 
 /*
 const tog_reconnect = createToggle({
@@ -1239,6 +1239,11 @@ async function saveBytes() {
 	}
 	console.log('saveBytes()', data);
 	await invoke("save_bytes", { filename, data});
+}
+
+async function startCapture() {
+	const res = await highSpeedCaptureDialog();
+	console.log('capture', res);
 }
 
 function highSpeedCaptureDialog() {
