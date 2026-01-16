@@ -321,6 +321,10 @@ function dotexthex() {
 	document.querySelectorAll('.ascii-hide').forEach(el => {
 		 el.style.opacity = texthex ? '1' : '0.4';
 	})
+	document.querySelectorAll('.border-hide').forEach(el => {
+		el.style.borderWidth = texthex ? '2px' : '0';
+	});
+	el_rx.style.gridTemplateColumns = texthex ? "repeat(auto-fit, 30px)" : "repeat(auto-fit, 17px)";
 }
 
 function doEOL() {
@@ -687,7 +691,8 @@ function renderRX(values, tx = false) {
 
     const cell = document.createElement('div');
     cell.className = tx ? 'ascii-tx' : 'ascii-rx';
-
+	cell.classList.add('border-hide');
+	
     if (code === 32) {
       cell.innerHTML = `
         <span class="ascii-hex">${hex}</span>
