@@ -14,6 +14,7 @@ body {
   padding: 0;
   height: 100%;
   overflow-x: hidden;
+  background: #0f141b;
 }
 
 body {
@@ -29,34 +30,6 @@ body {
 	overflow:hidden;
 }
 
-/* Top bar */
-
-#toolbar {
-  height: 30px;
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  border-bottom: 1px solid #333;
-  background: #3d3c3c;
-}
-
-#toolbar button {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: 1px solid #555;
-  background: #2b2b2b;
-  color: #fff;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-}
-
-#toolbar button:hover {
-  background: #3a3a3a;
-}
-
-/* SweetAlert2 port picker styling */
 .ft-swal {
   border: 1px solid rgba(148, 163, 184, 0.18);
   box-shadow: 0 20px 70px rgba(0,0,0,0.55);
@@ -164,12 +137,6 @@ body {
 
 .ft-cancel {
   border-radius: 12px !important;
-}
-
-.panel-inner {
-}
-
-.dv-panel-content {
 }
 
 #kb_body {
@@ -423,7 +390,8 @@ body {
 
 .title {
   height: 28px;
-  background: #222;
+  box-shadow: inset 0 -1px rgba(200, 200, 255, 0.12);
+  background: #151b23;
   color: #ccc;
   padding: 4px 8px;
   font-size: 12px;
@@ -434,18 +402,13 @@ body {
   overflow: auto;
 }
 
-/* Split.js gutters */
 .gutter {
-  background: #009abc; 
+  background: #2f7f8f;   /* muted pastel cyan */
   cursor: row-resize;
 }
 
-.gutter.gutter-vertical {
-  height: 5px;
-}
-
 .gutter.gutter-vertical:hover {
-  background: #00d0ff;
+  background: #5fd3e8;   /* soft glow, not neon */
 }
 
 .ft-grid {
@@ -550,6 +513,7 @@ body {
   height: 100%;
   margin-bottom:8px;
   margin-right:5px;
+  margin-top:3px;
   overflow:hidden;
 }
 

@@ -563,7 +563,7 @@ async function renderSplit() {
 	  {
 		direction: "vertical",
 		sizes: [40, 20, 40],
-		gutterSize: 6,
+		gutterSize: 4,
 		minSize: [160, 120, 160],
 	  }
 	);
