@@ -4,30 +4,35 @@ import Swal from 'sweetalert2';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
-const 	root 		 = document.getElementById('app');
-let		current_port = null;
-let		current_baud = null;
-let 	lastLatched  = null;
-let 	latchTimer 	 = 0;
-let     opened		 = false;
-let		fail_msg	 = null;
-let 	bs_enter 	 = false;
-let		auto_connect = true;
-let		auto_reconnect = true;
-let		echo 		 = true;
-let		EOL			 = true;
-let		CR 		 	 = true;
-let		LF 		 	 = true;
-let		scroll		 = true;
-let		texthex 	 = true;
-let 	hexEl 		 = null;
-let 	textEl 		 = null;
-let 	tx_buffer    = [];
-let 	last_buffer  = [];
-let		rx_buffer	 = [];
-let 	cap_buffer   = [];
-let 	capturing 	 = false;
-  
+const 	root 		 	= document.getElementById('app');
+let		current_port 	= null;
+let		current_baud 	= null;
+let 	lastLatched  	= null;
+let 	latchTimer 	 	= 0;
+let     opened		 	= false;
+let		fail_msg	 	= null;
+let 	bs_enter 	 	= false;
+let		auto_connect 	= true;
+let		auto_reconnect  = true;
+let		echo 		 	= true;
+let		EOL			 	= true;
+let		CR 		 	 	= true;
+let		LF 		 	 	= true;
+let		scroll		 	= true;
+let		texthex 	 	= true;
+let 	hexEl 		 	= null;
+let 	textEl 		 	= null;
+let 	tx_buffer    	= [];
+let 	last_buffer  	= [];
+let		rx_buffer	 	= [];
+let 	cap_buffer   	= [];
+let 	speed_samples	= [];  	// { t, bytes }
+let 	capturing 	 	= false;
+let 	cap_start_time  = null;
+let     cap_timer_id  	= null;
+
+const 	SPEED_WINDOW = 0.5; 	// seconds
+ 
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
@@ -45,11 +50,18 @@ await closePort();
 let unlisten_rx = await listen('serial_rx', (event) => {
 	try {
 		const bytes = new Uint8Array(event.payload);
-		if(capturing) {
-			cap_buffer.push(...bytes);
-			bytesEl.textContent = niceBytes(cap_buffer.length);
-			return;
+		if (capturing) {
+		  cap_buffer.push(...bytes);
+
+		  const nowBytes = cap_buffer.length;
+		  const bps = updateSpeed(bytes.length);
+
+		  bytesEl.textContent = niceBytes(nowBytes);
+		  speedEl.textContent = niceBytesPerSecond(bps);
+
+		  return;
 		}
+
 		rx_buffer.push(...bytes);
 		let frag = renderRX(bytes, false);
 		el_rx.appendChild(frag);
@@ -111,6 +123,8 @@ const el_tx_hex		= document.querySelector("#tx-hex");
 const el_tx_text	= document.querySelector("#tx-text");
 const el_connection = document.getElementById("connection");
 let   bytesEl		= null;		// set when capture window is open
+let   speedEl		= null;		// set when capture window is open
+let   timeEl		= null;		// set when capture window is open
 
 //-----------------------------RX-------------------//
 
@@ -1259,8 +1273,11 @@ async function saveBytes(buff_t = 'rx') {
 
 async function startCapture() {
 	const res = await highSpeedCaptureDialog();
-	if(res.action !== 'save')
+	if(res.action !== 'save') {
+        capturing = false;
+		stopCaptureTimer();
 		return;
+	}
 	saveBytes('cap');
 }
 
@@ -1275,10 +1292,29 @@ function highSpeedCaptureDialog() {
             <button id="hs-stop" class="ft-btn" style="width:90px;" disabled>Stop</button>
             <button id="hs-save" class="ft-btn" style="width:90px;" disabled>Save</button>
           </div>
-          <div id="hs-status" style="margin-top:8px; font-size:13px; opacity:0.85;">
-            Idle – no data
-          </div>
-          <div id="hs-bytes" style="margin-top:8px; font-size:13px;"></div>
+		  <div style="font-size:13px;width:100%;">
+			  <div id="hs-status" style="margin-top:5px;opacity:0.80;">
+				Idle – no data
+			  </div>
+			  <div style="margin-top:10px;">
+				  <div style="float:left;width:210px">
+					  <div style="float:left">Elapsed:&nbsp;</div>
+					  <div id="hs-time" style="float:left">00h 00m 00s</div>
+					  <div style="clear:both"></div>
+				  </div>
+				  <div style="float:left;width:120px">
+					  <div style="float:left">Speed:&nbsp;</div>
+					  <div id="hs-speed" style="float:left">0 B/s</div>
+					  <div style="clear:both"></div>
+				  </div>
+				  <div style="float:right;width:100px">
+					  <div id="hs-bytes" style="float:right">0 B</div>
+					  <div style="float:right">Size:&nbsp;</div>
+					  <div style="clear:both"></div>
+				  </div>
+				  <div style="clear:both"></div>
+			  </div>
+		  <div>
         </div>`,
       showConfirmButton: false,
       showCancelButton: true,
@@ -1286,7 +1322,7 @@ function highSpeedCaptureDialog() {
       allowEscapeKey: true,
       background: "#0b1220",
       color: "#e5e7eb",
-      width: 360,
+      width: 550,
       customClass: {
         popup: "ft-swal",
         title: "ft-title",
@@ -1298,6 +1334,8 @@ function highSpeedCaptureDialog() {
         const saveBtn  = document.getElementById("hs-save");
         const statusEl = document.getElementById("hs-status");
         bytesEl 	   = document.getElementById("hs-bytes");
+        speedEl 	   = document.getElementById("hs-speed");
+        timeEl 	   	   = document.getElementById("hs-time");
 
         function setState(state) {
           if (state === "idle") {
@@ -1311,6 +1349,8 @@ function highSpeedCaptureDialog() {
           if (state === "capturing") {
             capturing = true;
 			cap_buffer = [];
+			cap_start_time = getSecs();
+			startCaptureTimer()
             startBtn.disabled = true;
             stopBtn.disabled  = false;
             saveBtn.disabled  = true;
@@ -1319,6 +1359,7 @@ function highSpeedCaptureDialog() {
 
           if (state === "stopped") {
             capturing = false;
+			stopCaptureTimer()
             startBtn.disabled = true;
             stopBtn.disabled  = true;
             saveBtn.disabled  = false;
@@ -1350,15 +1391,69 @@ function highSpeedCaptureDialog() {
   });
 }
 
-function niceBytes(bytes) {
-    if (bytes < 1024) return `${bytes} B`;
+function getSecs() {
+  return performance.now() * 0.001;
+}
 
-    const kb = bytes / 1024;
-    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+// bytes → human readable
+function niceBytes(n) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024*1024) return `${(n/1024).toFixed(1)} KB`;
+  if (n < 1024*1024*1024) return `${(n/1024/1024).toFixed(2)} MB`;
+  return `${(n/1024/1024/1024).toFixed(2)} GB`;
+}
 
-    const mb = kb / 1024;
-    if (mb < 1024) return `${mb.toFixed(2)} MB`;
+function niceBytesPerSecond(bps) {
+  if (bps < 1024) return `${bps.toFixed(0)} B/s`;
+  if (bps < 1024*1024) return `${(bps/1024).toFixed(1)} KB/s`;
+  return `${(bps/1024/1024).toFixed(2)} MB/s`;
+}
 
-    const gb = mb / 1024;
-    return `${gb.toFixed(3)} GB`;
+function niceTime(sec) {
+  sec = Math.floor(sec);
+
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+
+  return (
+    h.toString().padStart(2, '0') + 'h ' +
+    m.toString().padStart(2, '0') + 'm ' +
+    s.toString().padStart(2, '0') + 's'
+  );
+}
+
+function updateSpeed(byteCount) {
+  const t = getSecs();
+
+  speed_samples.push({ t, bytes: byteCount });
+
+  // drop old samples
+  while (speed_samples.length &&
+         (t - speed_samples[0].t) > SPEED_WINDOW) {
+    speed_samples.shift();
+  }
+
+  if (speed_samples.length < 2) return 0;
+
+  const first = speed_samples[0];
+  const dt = t - first.t;
+  if (dt <= 0) return 0;
+
+  return byteCount / dt;
+}
+
+function startCaptureTimer() {
+  cap_start_time = getSecs();
+
+  cap_timer_id = setInterval(() => {
+    timeEl.textContent = niceTime(getSecs() - cap_start_time);
+  }, 100);
+}
+
+function stopCaptureTimer() {
+  if (cap_timer_id) {
+    clearInterval(cap_timer_id);
+    cap_timer_id = null;
+  }
 }
