@@ -47,9 +47,12 @@ Everything is **on screen, visible, and immediately usable**.
 
 ### 🚀 High-Speed Capture (With Low Level Stability)
 
+![High Speed Capture](screenshot-HSCapture.png)
+
 - Use the **Capture** button to start buffering raw data at full speed  
 - Capture **binary streams** without UI stalls, parsing, or crashes  
 - Byte-perfect output for **offline analysis**
+- Duration, Speed, Size & Jitter/Stall indicators via the sparkline
 
 ---
 
