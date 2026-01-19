@@ -1,6 +1,8 @@
 import './style.css';
 import Split from "split.js";
 import Swal from 'sweetalert2';
+import { sparkline } from "@fnando/sparkline";
+
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
@@ -26,13 +28,18 @@ let 	tx_buffer    	= [];
 let 	last_buffer  	= [];
 let		rx_buffer	 	= [];
 let 	cap_buffer   	= [];
-let 	speed_samples	= [];  	// { t, bytes }
 let 	capturing 	 	= false;
 let 	cap_start_time  = null;
 let     cap_timer_id  	= null;
+let 	lastSpeedTime 	= null;
+let		speedTimer		= null;
+let		sparkTimer		= null;
 
-const 	SPEED_WINDOW = 0.5; 	// seconds
- 
+const 	SPEED_INTERVAL 	= 500; // ms
+const 	SPEED_POINTS 	= 100;
+let 	speedByteAcc 	= 0;
+let 	speedArray 		= [];
+
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
@@ -53,12 +60,21 @@ let unlisten_rx = await listen('serial_rx', (event) => {
 		if (capturing) {
 		  cap_buffer.push(...bytes);
 
-		  const nowBytes = cap_buffer.length;
-		  const bps = updateSpeed(bytes.length);
+		  speedByteAcc += bytes.length;
 
-		  bytesEl.textContent = niceBytes(nowBytes);
-		  speedEl.textContent = niceBytesPerSecond(bps);
+		  const now = performance.now();
+		  if (now - lastSpeedTime >= SPEED_INTERVAL) {
+			const dt = (now - lastSpeedTime) / 1000;
+			const bps = speedByteAcc / dt;
 
+			speedEl.textContent = niceBytesPerSecond(bps);
+			pushSpeed(bps);
+
+			speedByteAcc = 0;
+			lastSpeedTime = now;
+		  }
+
+		  bytesEl.textContent = niceBytes(cap_buffer.length);
 		  return;
 		}
 
@@ -122,9 +138,11 @@ const el_rx_title   = document.getElementById("rx_title");
 const el_tx_hex		= document.querySelector("#tx-hex");
 const el_tx_text	= document.querySelector("#tx-text");
 const el_connection = document.getElementById("connection");
+
 let   bytesEl		= null;		// set when capture window is open
-let   speedEl		= null;		// set when capture window is open
-let   timeEl		= null;		// set when capture window is open
+let   speedEl		= null;
+let   timeEl		= null;
+let   sparkEl		= null;
 
 //-----------------------------RX-------------------//
 
@@ -1273,12 +1291,13 @@ async function saveBytes(buff_t = 'rx') {
 
 async function startCapture() {
 	const res = await highSpeedCaptureDialog();
-	if(res.action !== 'save') {
-        capturing = false;
-		stopCaptureTimer();
-		return;
-	}
-	saveBytes('cap');
+    capturing = false;
+	stopCaptureTimer();
+	stopSpeedTimer();
+	stopSparkTimer();
+
+	if(res.action === 'save')
+		saveBytes('cap');
 }
 
 function highSpeedCaptureDialog() {
@@ -1314,6 +1333,9 @@ function highSpeedCaptureDialog() {
 				  </div>
 				  <div style="clear:both"></div>
 			  </div>
+			  <div style="margin-top:10px;width:500px;height:120px;border:1px solid grey">
+				<svg id="hs-spark" class="sparkline" width="500" height="120" stroke-width="1"></svg>
+			  </div>
 		  <div>
         </div>`,
       showConfirmButton: false,
@@ -1336,6 +1358,7 @@ function highSpeedCaptureDialog() {
         bytesEl 	   = document.getElementById("hs-bytes");
         speedEl 	   = document.getElementById("hs-speed");
         timeEl 	   	   = document.getElementById("hs-time");
+        sparkEl    	   = document.getElementById("hs-spark");
 
         function setState(state) {
           if (state === "idle") {
@@ -1349,8 +1372,12 @@ function highSpeedCaptureDialog() {
           if (state === "capturing") {
             capturing = true;
 			cap_buffer = [];
+			speedArray = new Array(SPEED_POINTS).fill(0.0001);
 			cap_start_time = getSecs();
-			startCaptureTimer()
+			lastSpeedTime = performance.now();
+			startCaptureTimer();
+			startSpeedTimer();
+			startSparkTimer();
             startBtn.disabled = true;
             stopBtn.disabled  = false;
             saveBtn.disabled  = true;
@@ -1360,6 +1387,8 @@ function highSpeedCaptureDialog() {
           if (state === "stopped") {
             capturing = false;
 			stopCaptureTimer()
+ 			stopSpeedTimer();
+			stopSparkTimer();
             startBtn.disabled = true;
             stopBtn.disabled  = true;
             saveBtn.disabled  = false;
@@ -1423,26 +1452,6 @@ function niceTime(sec) {
   );
 }
 
-function updateSpeed(byteCount) {
-  const t = getSecs();
-
-  speed_samples.push({ t, bytes: byteCount });
-
-  // drop old samples
-  while (speed_samples.length &&
-         (t - speed_samples[0].t) > SPEED_WINDOW) {
-    speed_samples.shift();
-  }
-
-  if (speed_samples.length < 2) return 0;
-
-  const first = speed_samples[0];
-  const dt = t - first.t;
-  if (dt <= 0) return 0;
-
-  return byteCount / dt;
-}
-
 function startCaptureTimer() {
   cap_start_time = getSecs();
 
@@ -1456,4 +1465,45 @@ function stopCaptureTimer() {
     clearInterval(cap_timer_id);
     cap_timer_id = null;
   }
+}
+
+function startSpeedTimer() {
+	speedTimer = setInterval(() => {
+	  const now = performance.now();
+	  if (now - lastSpeedTime > SPEED_INTERVAL) {
+		speedEl.textContent = niceBytesPerSecond(0);
+	  }
+	}, SPEED_INTERVAL);
+}
+
+function stopSpeedTimer() {
+	if(speedTimer)
+		clearInterval(speedTimer);
+	speedTimer = null;
+}
+
+function pushSpeed(value) {
+  speedArray.push(value);
+  if (speedArray.length > SPEED_POINTS) {
+    speedArray.shift();
+  }
+  console.log(speedArray);
+  sparkline(sparkEl, speedArray);
+}
+
+function startSparkTimer() {
+	sparkTimer = setInterval(() => {
+	  const now = performance.now();
+	  if (now - lastSpeedTime >= SPEED_INTERVAL) {
+		pushSpeed(0);
+		speedEl.textContent = niceBytesPerSecond(0);
+		lastSpeedTime = now;
+	  }
+	}, SPEED_INTERVAL);
+}
+
+function stopSparkTimer() {
+	if(sparkTimer)
+		clearInterval(sparkTimer);
+	sparkTimer = null;
 }

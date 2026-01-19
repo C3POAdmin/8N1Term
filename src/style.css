@@ -572,3 +572,7 @@ body {
   opacity: 1;
 }
 
+.sparkline {
+  stroke:cyan;
+  fill: rgb(0,255,255,0.3);
+}
