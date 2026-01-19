@@ -1333,7 +1333,7 @@ function highSpeedCaptureDialog() {
 				  </div>
 				  <div style="clear:both"></div>
 			  </div>
-			  <div style="margin-top:10px;width:500px;height:120px;border:1px solid grey">
+			  <div style="margin-top:10px;width:500px;height:120px;border:1px solid grey;margin-left:-5px">
 				<svg id="hs-spark" class="sparkline" width="500" height="120" stroke-width="1"></svg>
 			  </div>
 		  <div>
