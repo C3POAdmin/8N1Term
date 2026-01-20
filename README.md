@@ -13,7 +13,7 @@ Everything is **on screen, visible, and immediately usable**.
 
 ---
 
-### Quick start
+### Quick start (Windows & Linux)
 
 - Run the installer ([Downloads](https://github.com/C3POAdmin/8N1Term/releases))
 - Select a serial port and baud rate
