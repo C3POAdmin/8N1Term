@@ -675,8 +675,6 @@ function handlePorts() {
 }
 
 async function pickSerialPort(ports) {
-    let chosen = null;
-
     const result = await Swal.fire({
 		title: "Select a COM port",
 		html: 
@@ -709,6 +707,18 @@ async function pickSerialPort(ports) {
 		didOpen: () => {
 			renderPorts(ports);
 			handlePorts();
+			const root = Swal.getHtmlContainer();
+			const input = root.querySelector("#path-input");
+			input.addEventListener("keydown", (e) => {
+				console.log(input.value);
+				if (e.key === "Enter") {
+					if(!input.value.length)
+						return;
+					current_port = input.value;
+					Swal.close();
+				}
+			});
+
 			const toggle = createToggle({
 				label: "Auto connect",
 				initial: auto_connect,
