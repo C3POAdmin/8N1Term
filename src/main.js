@@ -428,7 +428,7 @@ async function renderApp() {
 root.innerHTML = 
  `<div id="rx_panel" class="panel no-select">
 	  <div class="title no-select">
-		  <div id="rx_title" style="float:left;width:120px;padding-top:2px"></div>
+		  <div id="rx_title" style="float:left;margin-right:12px;padding-top:2px"></div>
 		  <div style="float:left;padding-top:2px" id="connection"></div>
 		  <div style="float:right;margin-right:-3px;margin-top:-5px;" id="r_rx"></div>
 		  <div style="float:right;margin-right:15px;margin-top:-5px;" id="l_rx"></div>
