@@ -622,6 +622,16 @@ function esc(s) {
 function renderPorts(ports) {
 	const el = document.getElementById("select_ports");
 
+	ports.sort((a, b) => {
+	  const w = p =>
+		/^COM\d+/i.test(p) ? 0 :
+		p.includes("ttyACM") ? 1 :
+		p.includes("ttyUSB") ? 2 : 3;
+
+	  return w(a.path) - w(b.path) ||
+			 a.path.localeCompare(b.path, undefined, { numeric: true });
+	});
+
 	const rows = ports.map((p) => {
 		  const path = esc(p.path);
 		  const manu = esc(p.manufacturer);
@@ -671,7 +681,17 @@ async function pickSerialPort(ports) {
 		title: "Select a COM port",
 		html: 
 		  `<div class="ft-wrap" role="table" aria-label="Serial ports" id="select_ports"></div>
-		   <div style="float:left;margin-top:2px;margin-left:4px;" id="auto_connect"></div>`,
+		  <div class="ft-custom" style="margin-left:5px;float:left;text-align:left;width:300px;">
+			<input 
+		      style="width:200px"
+			  id="path-input"
+			  class="ft-input"
+			  placeholder="custom device path → Enter"
+			/>
+		  </div>
+		   <div style="float:right;margin-top:12px;margin-right:4px;" id="auto_connect"></div>
+		   <div sytle="clear:both"></div><br/><br/>  
+		  <div class="ft-hint" style="margin-left:7px;float:left;">Select a COM port or type in a custom path.</div>`,
 		showConfirmButton: false,
 		showCancelButton: false,
 		allowOutsideClick: false,
@@ -1045,7 +1065,6 @@ export async function pickBaudRate() {
 		  class="ft-input"
 		  type="number"
 		  min="1"
-		  max="1000000"
 		  placeholder="custom baud → Enter"
 		/>
 		<div class="ft-hint" style="margin-left:7px">Select a baud rate or type in a custom rate.</div>
