@@ -13,6 +13,14 @@ Everything is **on screen, visible, and immediately usable**.
 
 ---
 
+### Quick start
+
+- Run the installer ([Downloads](https://github.com/C3POAdmin/8N1Term/releases))
+- Select a serial port and baud rate
+- Type or use the on-screen keyboard
+- Hit Enter or Press Send
+
+
 ### 📥 RX On-screen Options
 
 - **Text / HEX** – Toggle integrated text + hex display
