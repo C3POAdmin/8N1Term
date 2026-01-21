@@ -5,7 +5,7 @@ import { sparkline } from "@fnando/sparkline";
 
 import { invoke } 		 from '@tauri-apps/api/core';
 import { listen } 		 from '@tauri-apps/api/event';
-import { WebviewWindow } from '@tauri-apps/api/window'
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
 
 const 	root 		 	= document.getElementById('app');
 let		current_port 	= null;
