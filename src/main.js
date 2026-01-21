@@ -3,8 +3,9 @@ import Split from "split.js";
 import Swal from 'sweetalert2';
 import { sparkline } from "@fnando/sparkline";
 
-import { invoke } from '@tauri-apps/api/core';
-import { listen } from '@tauri-apps/api/event';
+import { invoke } 		 from '@tauri-apps/api/core';
+import { listen } 		 from '@tauri-apps/api/event';
+import { WebviewWindow } from '@tauri-apps/api/window'
 
 const 	root 		 	= document.getElementById('app');
 let		current_port 	= null;
@@ -52,80 +53,16 @@ const ASCII_CTRL = [
 
 //=================================== main ==============================/
 
-await closePort();
+console.log('[Starting Port + Baud Selection]');
 
-let unlisten_rx = await listen('serial_rx', (event) => {
-	try {
-		const bytes = new Uint8Array(event.payload);
-		if (capturing) {
-		  cap_buffer.push(...bytes);
-
-		  speedByteAcc += bytes.length;
-
-		  const now = performance.now();
-		  if (now - lastSpeedTime >= SPEED_INTERVAL) {
-			const dt = (now - lastSpeedTime) / 1000;
-			const bps = speedByteAcc / dt;
-
-			speedEl.textContent = niceBytesPerSecond(bps);
-			pushSpeed(bps);
-
-			speedByteAcc = 0;
-			lastSpeedTime = now;
-		  }
-
-		  bytesEl.textContent = niceBytes(cap_buffer.length);
-		  return;
-		}
-
-		rx_buffer.push(...bytes);
-		let frag = renderRX(bytes, false);
-		el_rx.appendChild(frag);
-		doEcho();
-		dotexthex();
-		doScroll();
-		console.log('RX length:', bytes.length);
-	} catch (e) {
-		console.log('serial_rx',e);
-	}
-});
-
-const unlisten_usb = await listen('serial-ports-changed', (event) => {
-	try {
-		console.log('[RS] serial-ports-changed',current_port);
-		if(current_port === null) {
-			console.log('update port list');
-			renderPorts(event.payload);
-			return;
-		}
-	} catch (e) {
-		console.log('serial-ports-changed',e);
-	}
-});
-
-const unlisten_serial = await listen('serial_state', (event) => {
-	try {
-		const val = event.payload;
-		console.log('serial_state',val);
-		if(val.includes('failed'))
-			fail_msg = 'Access Denied';
-		else
-			fail_msg = null;
-		opened = val.includes('opened');
-		updateConnected();
-	} catch (e) {
-		console.log('serial_state',e);
-	}
-});
-
-const 	ports 		 = await invoke('list_ports');
-root.hidden = true;
-await   renderApp();
-
-await pickSerialPort(ports); // sets current_port as internals for refreshed ports mess with the return value
-current_baud = await pickBaudRate();
-console.log('current_baud',current_baud);
-await renderSplit();
+await 			closePort(); // helps when in dev mode
+await 			startListeners();
+const ports 	= await invoke('list_ports');
+root.hidden   	= true;
+await   		renderApp();
+await   		pickSerialPort(ports); // sets current_port internally
+current_baud 	= await pickBaudRate();
+await 		    renderSplit();
 
 const l_rx 			= document.querySelector("#l_rx");
 const r_rx 			= document.querySelector("#r_rx");
@@ -143,6 +80,8 @@ let   bytesEl		= null;		// set when capture window is open
 let   speedEl		= null;
 let   timeEl		= null;
 let   sparkEl		= null;
+
+console.log('[Selected]', current_port, current_baud);
 
 //-----------------------------RX-------------------//
 
@@ -165,12 +104,6 @@ r_rx.insertAdjacentHTML(
 const el_disconnect = document.getElementById("disconnect")
 el_disconnect.addEventListener("click", function() {
 	closePort();
-	/*
-	if(auto_reconnect) {
-		tog_reconnect.set(false);
-		auto_reconnect = false;
-	}
-	*/
 });
 el_disconnect.hidden = true;
 
@@ -196,18 +129,6 @@ r_rx.insertAdjacentHTML(
 );
 const el_cap = document.getElementById("cap_rx")
 el_cap.addEventListener("click", startCapture);
-
-/*
-const tog_reconnect = createToggle({
-  label: "Reconnect",
-  initial: auto_reconnect,
-  onChange: (label, state) => {
-    console.log(label, state);
-	auto_reconnect = state;
-  }
-});
-l_rx.appendChild(tog_reconnect);
-*/
 
 const tog_texthex = createToggle({
   label: "Text/Hex",
@@ -1535,4 +1456,134 @@ function stopSparkTimer() {
 	if(sparkTimer)
 		clearInterval(sparkTimer);
 	sparkTimer = null;
+}
+
+async function startListeners() {
+	await listen('serial_rx', (event) => {
+		try {
+			const bytes = new Uint8Array(event.payload);
+			if (capturing) {
+			  cap_buffer.push(...bytes);
+
+			  speedByteAcc += bytes.length;
+
+			  const now = performance.now();
+			  if (now - lastSpeedTime >= SPEED_INTERVAL) {
+				const dt = (now - lastSpeedTime) / 1000;
+				const bps = speedByteAcc / dt;
+
+				speedEl.textContent = niceBytesPerSecond(bps);
+				pushSpeed(bps);
+
+				speedByteAcc = 0;
+				lastSpeedTime = now;
+			  }
+
+			  bytesEl.textContent = niceBytes(cap_buffer.length);
+			  return;
+			}
+
+			rx_buffer.push(...bytes);
+			let frag = renderRX(bytes, false);
+			el_rx.appendChild(frag);
+			doEcho();
+			dotexthex();
+			doScroll();
+			console.log('RX length:', bytes.length);
+		} catch (e) {
+			console.log('serial_rx',e);
+		}
+	});
+
+	await listen('serial-ports-changed', (event) => {
+		try {
+			console.log('[RS] serial-ports-changed',current_port);
+			if(current_port === null) {
+				console.log('update port list');
+				renderPorts(event.payload);
+				return;
+			}
+		} catch (e) {
+			console.log('serial-ports-changed',e);
+		}
+	});
+
+	await listen('serial_state', (event) => {
+		try {
+			const val = event.payload;
+			console.log('serial_state',val);
+			if(val.includes('failed'))
+				fail_msg = 'Access Denied';
+			else
+				fail_msg = null;
+			opened = val.includes('opened');
+			updateConnected();
+		} catch (e) {
+			console.log('serial_state',e);
+		}
+	});
+
+	await listen('serial_rx', (event) => {
+		try {
+			const bytes = new Uint8Array(event.payload);
+			if (capturing) {
+			  cap_buffer.push(...bytes);
+
+			  speedByteAcc += bytes.length;
+
+			  const now = performance.now();
+			  if (now - lastSpeedTime >= SPEED_INTERVAL) {
+				const dt = (now - lastSpeedTime) / 1000;
+				const bps = speedByteAcc / dt;
+
+				speedEl.textContent = niceBytesPerSecond(bps);
+				pushSpeed(bps);
+
+				speedByteAcc = 0;
+				lastSpeedTime = now;
+			  }
+
+			  bytesEl.textContent = niceBytes(cap_buffer.length);
+			  return;
+			}
+
+			rx_buffer.push(...bytes);
+			let frag = renderRX(bytes, false);
+			el_rx.appendChild(frag);
+			doEcho();
+			dotexthex();
+			doScroll();
+			console.log('RX length:', bytes.length);
+		} catch (e) {
+			console.log('serial_rx',e);
+		}
+	});
+
+	const unlisten_usb = await listen('serial-ports-changed', (event) => {
+		try {
+			console.log('[RS] serial-ports-changed',current_port);
+			if(current_port === null) {
+				console.log('update port list');
+				renderPorts(event.payload);
+				return;
+			}
+		} catch (e) {
+			console.log('serial-ports-changed',e);
+		}
+	});
+
+	const unlisten_serial = await listen('serial_state', (event) => {
+		try {
+			const val = event.payload;
+			console.log('serial_state',val);
+			if(val.includes('failed'))
+				fail_msg = 'Access Denied';
+			else
+				fail_msg = null;
+			opened = val.includes('opened');
+			updateConnected();
+		} catch (e) {
+			console.log('serial_state',e);
+		}
+	});
 }
