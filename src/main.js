@@ -1523,19 +1523,4 @@ async function startListeners() {
 			console.log('serial_state',e);
 		}
 	});
-
-	await listen('serial_state', (event) => {
-		try {
-			const val = event.payload;
-			console.log('serial_state',val);
-			if(val.includes('failed'))
-				fail_msg = 'Access Denied';
-			else
-				fail_msg = null;
-			opened = val.includes('opened');
-			updateConnected();
-		} catch (e) {
-			console.log('serial_state',e);
-		}
-	});
 }
