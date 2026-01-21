@@ -1537,7 +1537,6 @@ export async function openChartWindow() {
 
   let win = await WebviewWindow.getByLabel(label)
 
-	console.log(win);
   if (win) {
     await win.show()
     await win.setFocus()
@@ -1546,8 +1545,10 @@ export async function openChartWindow() {
 
   win = new WebviewWindow(label, {
     title: 'Serial Stream Chart',
-    url: 'chart.html',
+    url: '../src/chart.html',
     width: 900,
     height: 500,
   })
+    await win.show()
+	await win.setFocus()
 }

@@ -5,8 +5,6 @@
 <title>Serial Stream Chart</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
 <style>
   html, body {
     margin: 0;
@@ -15,6 +13,7 @@
     color: #c9d1d9;
     height: 100%;
     width: 100%;
+	  overflow: hidden;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
@@ -29,6 +28,7 @@
 <div id="chart"></div>
 
 <script type="module">
+  import ApexCharts from 'apexcharts'
   import { listen } from '@tauri-apps/api/event'
 
   const MAX_POINTS = 500
@@ -46,6 +46,7 @@
         speed: 150
       },
       background: 'transparent',
+	  parentHeightOffset: 0, 
       toolbar: { show: false },
       zoom: { enabled: false }
     },
