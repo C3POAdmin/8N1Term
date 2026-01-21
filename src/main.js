@@ -10,6 +10,7 @@ import { WebviewWindow } from '@tauri-apps/api/window'
 const 	root 		 	= document.getElementById('app');
 let		current_port 	= null;
 let		current_baud 	= null;
+let		ports			= null;
 let 	lastLatched  	= null;
 let 	latchTimer 	 	= 0;
 let     opened		 	= false;
@@ -54,13 +55,13 @@ const ASCII_CTRL = [
 //=================================== main ==============================/
 
 console.log('[Starting Port + Baud Selection]');
+root.hidden   	= true;
 
 await 			closePort(); // helps when in dev mode
 await 			startListeners();
-const ports 	= await invoke('list_ports');
-root.hidden   	= true;
+ports 			= await invoke('list_ports');
 await   		renderApp();
-await   		pickSerialPort(ports); // sets current_port internally
+await   		pickSerialPort(); // sets current_port internally
 current_baud 	= await pickBaudRate();
 await 		    renderSplit();
 
@@ -595,7 +596,7 @@ function handlePorts() {
 	});	
 }
 
-async function pickSerialPort(ports) {
+async function pickSerialPort() {
     const result = await Swal.fire({
 		title: "Select a COM port",
 		html: 
@@ -1523,56 +1524,7 @@ async function startListeners() {
 		}
 	});
 
-	await listen('serial_rx', (event) => {
-		try {
-			const bytes = new Uint8Array(event.payload);
-			if (capturing) {
-			  cap_buffer.push(...bytes);
-
-			  speedByteAcc += bytes.length;
-
-			  const now = performance.now();
-			  if (now - lastSpeedTime >= SPEED_INTERVAL) {
-				const dt = (now - lastSpeedTime) / 1000;
-				const bps = speedByteAcc / dt;
-
-				speedEl.textContent = niceBytesPerSecond(bps);
-				pushSpeed(bps);
-
-				speedByteAcc = 0;
-				lastSpeedTime = now;
-			  }
-
-			  bytesEl.textContent = niceBytes(cap_buffer.length);
-			  return;
-			}
-
-			rx_buffer.push(...bytes);
-			let frag = renderRX(bytes, false);
-			el_rx.appendChild(frag);
-			doEcho();
-			dotexthex();
-			doScroll();
-			console.log('RX length:', bytes.length);
-		} catch (e) {
-			console.log('serial_rx',e);
-		}
-	});
-
-	const unlisten_usb = await listen('serial-ports-changed', (event) => {
-		try {
-			console.log('[RS] serial-ports-changed',current_port);
-			if(current_port === null) {
-				console.log('update port list');
-				renderPorts(event.payload);
-				return;
-			}
-		} catch (e) {
-			console.log('serial-ports-changed',e);
-		}
-	});
-
-	const unlisten_serial = await listen('serial_state', (event) => {
+	await listen('serial_state', (event) => {
 		try {
 			const val = event.payload;
 			console.log('serial_state',val);
