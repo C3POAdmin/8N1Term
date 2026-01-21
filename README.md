@@ -26,6 +26,7 @@ Everything is **on screen, visible, and immediately usable**.
 - **Text / HEX** – Toggle integrated text + hex display
 - **EOL** – Break lines on CR and/or LF
 - **Scroll Lock** – Freeze or auto-scroll incoming data
+- **Plotter** – Visualize incoming ASCII numeric values as a real-time graph
 - **Capture** – Low-level, high-speed capture mode (no UI overhead)
 - **Clear** – Clear RX buffer
 - **Disconnect** – Close the active COM port
