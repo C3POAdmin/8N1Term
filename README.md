@@ -59,7 +59,7 @@ Everything is **on screen, visible, and immediately usable**.
 - Capture **binary streams** without UI stalls, parsing, or crashes  
 - Duration, Speed, Size & Jitter/Stall indicators via the sparkline
 - Byte-perfect output for **offline analysis**
-<img src="screenshot-HSCapture.png" width="600">
+<img src="screenshot-Capture.png" width="600">
 
 ---
 
