@@ -1545,7 +1545,7 @@ export async function openChartWindow() {
 
   win = new WebviewWindow(label, {
     title: 'Serial Stream Chart',
-    url: '../src/chart.html',
+    url: 'chart.html',
     width: 900,
     height: 500,
   })
