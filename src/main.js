@@ -126,6 +126,13 @@ el_disconnect.hidden = true;
 
 r_rx.insertAdjacentHTML(
   'beforeend',
+  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="chart_rx">Chart</button>'
+);
+const el_chart = document.getElementById("chart_rx")
+el_chart.addEventListener("click", openChartWindow);
+
+r_rx.insertAdjacentHTML(
+  'beforeend',
   '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="cap_rx">Capture</button>'
 );
 const el_cap = document.getElementById("cap_rx")
@@ -1523,4 +1530,24 @@ async function startListeners() {
 			console.log('serial_state',e);
 		}
 	});
+}
+
+export async function openChartWindow() {
+  const label = 'chart'
+
+  let win = await WebviewWindow.getByLabel(label)
+
+	console.log(win);
+  if (win) {
+    await win.show()
+    await win.setFocus()
+    return
+  }
+
+  win = new WebviewWindow(label, {
+    title: 'Serial Stream Chart',
+    url: 'chart.html',
+    width: 900,
+    height: 500,
+  })
 }

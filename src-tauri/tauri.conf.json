@@ -13,9 +13,9 @@
     "windows": [
       {
         "title": "8N1Term",
-        "width": 1000,
-        "height": 600,
-		"minWidth": 880,
+        "width": 1080,
+        "height": 700,
+		"minWidth": 960,
 		"minHeight": 600,
         "resizable": true,
         "fullscreen": false
