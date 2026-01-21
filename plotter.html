@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>8N1Term Serial Plotter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0d1117;
+    color: #c9d1d9;
+    height: 100%;
+    width: 100%;
+	overflow: hidden;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  #plotter {
+    height: 100%;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<div id="plotter"></div>
+
+<script type="module">
+  import ApexCharts from 'apexcharts'
+  import { listen } from '@tauri-apps/api/event'
+
+  const MAX_POINTS = 300
+
+  const seriesData = []
+
+  const options = {
+    chart: {
+      type: 'line',
+      height: '100%',
+      width: '100%',
+      animations: {
+        enabled: true,
+        easing: 'linear',
+        speed: 150
+      },
+      background: 'transparent',
+	  parentHeightOffset: 0, 
+      toolbar: { show: false },
+      zoom: { enabled: false }
+    },
+
+    theme: {
+      mode: 'dark'
+    },
+
+	stroke: {
+	    curve: 'straight',
+		width: 2
+	},
+
+    grid: {
+      borderColor: '#1f2937',
+      strokeDashArray: 3
+    },
+
+    xaxis: {
+      type: 'datetime',
+      labels: {
+        style: { colors: '#8b949e' }
+      }
+    },
+
+    yaxis: {
+      decimalsInFloat: 2,
+      labels: {
+        style: { colors: '#8b949e' }
+      }
+    },
+
+	tooltip: {
+	  theme: 'dark',
+	  custom: function({ series, seriesIndex, dataPointIndex, w }) {
+		const p = w.config.series[seriesIndex].data[dataPointIndex]
+		const d = new Date(p.t)
+
+		const hh = String(d.getHours()).padStart(2,'0')
+		const mm = String(d.getMinutes()).padStart(2,'0')
+		const ss = String(d.getSeconds()).padStart(2,'0')
+		const ms = String(d.getMilliseconds()).padStart(3,'0')
+
+		const time = `${hh}:${mm}:${ss}.${ms}`
+		const val  = series[seriesIndex][dataPointIndex]
+
+		return `
+		  <div style="padding:6px 8px;">
+			<div>${time}</div>
+			<div>${val}</div>
+		  </div>
+		`
+	  }
+	},
+
+    series: [{
+      name: 'Value',
+      data: seriesData
+    }]
+  }
+
+  const plotter = new ApexCharts(document.querySelector('#plotter'), options)
+  plotter.render()
+
+	let token = ''
+	let xIndex = 0
+
+	await listen('serial_rx', (event) => {
+	  let emit = false
+	  const packet = event.payload   // Uint8Array or number[]
+
+	  packet.forEach((b) => {
+		// ASCII '0'..'9' or '.'
+		if ((b >= 48 && b <= 57) || b === 46) {
+		  token += String.fromCharCode(b)
+		} else {
+		  // delimiter
+		  if (token.length) {
+			const y = Number(token)
+
+			if (Number.isFinite(y)) {
+			  seriesData.push({
+				x: xIndex++,
+				y,
+				t: Date.now()
+			  })
+			  emit = true
+			}
+
+			token = ''
+		  }
+		}
+	  })
+
+	  // packet boundary acts as delimiter
+	  if (token.length) {
+		const y = Number(token)
+
+		if (Number.isFinite(y)) {
+		  seriesData.push({
+			x: xIndex++,
+			y,
+			t: Date.now()
+		  })
+		  emit = true
+		}
+
+		token = ''
+	  }
+
+	  if (emit) {
+		plotter.updateSeries([{ data: seriesData }], false)
+	  }
+})
+
+
+</script>
+
+</body>
+</html>

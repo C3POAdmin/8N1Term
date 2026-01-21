@@ -6,6 +6,7 @@ import { sparkline } from "@fnando/sparkline";
 import { invoke } 		 from '@tauri-apps/api/core';
 import { listen } 		 from '@tauri-apps/api/event';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 
 const 	root 		 	= document.getElementById('app');
 let		current_port 	= null;
@@ -65,6 +66,7 @@ await   		pickSerialPort(); // sets current_port internally
 current_baud 	= await pickBaudRate();
 await 		    renderSplit();
 
+	
 const l_rx 			= document.querySelector("#l_rx");
 const r_rx 			= document.querySelector("#r_rx");
 const l_tx 			= document.querySelector("#l_tx");
@@ -126,10 +128,10 @@ el_disconnect.hidden = true;
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="chart_rx">Chart</button>'
+  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="plotter_rx">Plotter</button>'
 );
-const el_chart = document.getElementById("chart_rx")
-el_chart.addEventListener("click", openChartWindow);
+const el_plotter = document.getElementById("plotter_rx")
+el_plotter.addEventListener("click", openPlotterWindow);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
@@ -1532,23 +1534,35 @@ async function startListeners() {
 	});
 }
 
-export async function openChartWindow() {
-  const label = 'chart'
+export async function openPlotterWindow() {
+  const label = 'plotter'
 
-  let win = await WebviewWindow.getByLabel(label)
+	try {
+	  var win = await WebviewWindow.getByLabel(label)
+	  if (win) {
+		await win.show()
+		await win.setFocus()
+		return
+	  }
 
-  if (win) {
-    await win.show()
-    await win.setFocus()
-    return
-  }
+	  win = new WebviewWindow(label, {
+		title: 'Serial Plotter',
+		url: 'plotter.html',
+		width: 900,
+		height: 500,
+	  })
+      await win.show()
+	  await win.setFocus()
 
-  win = new WebviewWindow(label, {
-    title: 'Serial Stream Chart',
-    url: 'chart.html',
-    width: 900,
-    height: 500,
-  })
-    await win.show()
-	await win.setFocus()
+	} catch(e) {
+		console.log('Plotter window opening');
+	}
+	const mainWin = getCurrentWindow()
+
+	mainWin.onCloseRequested(async () => {
+	  const plotterWin = await WebviewWindow.getByLabel('plotter')
+	  if (plotterWin) {
+		await plotterWin.close()
+	  }
+	})
 }
