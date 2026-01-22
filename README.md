@@ -1,4 +1,4 @@
-# ![8N1Term Icon](src-tauri/icons/Square44x44Logo.png/icon.png) 8N1Term 
+# !(src-tauri/icons/Square44x44Logo.png) 8N1Term 
 **A next-generation serial terminal that removes ASCII table lookup.**
 
 8N1Term is a modern re-thinking of the classic serial terminal.  
