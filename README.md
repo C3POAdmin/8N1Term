@@ -60,7 +60,21 @@ Everything is **on screen, visible, and immediately usable**.
 - Capture **binary streams** without UI stalls, parsing, or crashes  
 - Duration, Speed, Size & Jitter/Stall indicators via the sparkline
 - Byte-perfect output for **offline analysis**
+
 <img src="screenshot-Capture.png" width="600">
+
+---
+
+### 📈 Serial Plotter
+
+Opens a **separate Plotter window** for live graphing of incoming serial data.  
+Runs independently of the main terminal and supports **full-screen mode**.
+
+Each data point includes:
+- **Numeric value**
+- **Time-of-day timestamp** with **millisecond precision** (HH:MM:SS.mmm)
+
+<img src="screenshot-Plotter.png" width="600">
 
 ---
 
