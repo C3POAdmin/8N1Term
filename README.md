@@ -74,7 +74,7 @@ Each data point includes:
 - **Numeric value**
 - **Time-of-day timestamp** with **millisecond precision** (HH:MM:SS.mmm)
 
-<img src="screenshot-Plotter.png" width="600">
+![Serial Plotter](screenshot-Plotter.png)
 
 ---
 
