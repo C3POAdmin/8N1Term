@@ -67,12 +67,13 @@ Everything is **on screen, visible, and immediately usable**.
 
 ### 📈 Serial Plotter
 
-Opens a **separate Plotter window** for live graphing of incoming serial data.  
-Runs independently of the main terminal and supports **full-screen mode**.
+Opens a separate Plotter window for live graphing of **numeric values automatically extracted** from incoming serial data streams.
 
-Each data point includes:
-- **Numeric value**
-- **Time-of-day timestamp** with **millisecond precision** (HH:MM:SS.mmm)
+The plotter is format-agnostic — it detects and plots numbers from **mixed or unstructured input** (plain text, debug output, CSV-style data, ints, floats, etc.) without requiring a fixed protocol or special formatting.
+
+Each plotted data point includes:
+- **Extracted numeric value**
+- **Time-of-day timestamp** with millisecond precision (`HH:MM:SS.mmm`)
 
 ![Serial Plotter](screenshot-Plotter.png)
 
