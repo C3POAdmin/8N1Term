@@ -5,31 +5,7 @@ It is not a schedule or a commitment — priorities may change based on real-wor
 
 ---
 
-## 1. Live numeric graphing (PlatformIO-style)
-
-Add an optional, lightweight **live line graph** for visualising numeric values streamed over serial, similar to the PlatformIO / Arduino Serial Plotter.
-
-### Intended behaviour
-- Parses **ASCII numeric values** from the incoming stream
-- One value → one trace
-- Multiple values per line → multiple traces
-- X-axis represents time / sample index
-- Graph scrolls continuously as new data arrives
-
-### Design constraints
-- **Opt-in feature** (never enabled by default)
-- Must not interfere with raw/binary-safe serial handling
-- Graphing runs as a **side-channel parser**, not the core pipeline
-- Assumes reasonably clean ASCII output (no attempt to “fix” malformed streams)
-
-### Open questions
-- Delimiter handling (newline, space, comma)
-- Maximum trace count before UI throttling
-- Pause / resume vs continuous scrolling
-
----
-
-## 2. Protocol-aware helpers (e.g. MODBUS)
+## Protocol-aware helpers (e.g. MODBUS)
 
 Explore adding **protocol-aware helpers** for common industrial / embedded protocols, starting with MODBUS-style framing.
 
@@ -57,7 +33,7 @@ This is intended as *assistance*, not a full protocol analyzer.
 
 ---
 
-## 3. CRC calculation helper
+## CRC calculation helper
 
 Add a **CRC helper button** to assist with constructing outbound frames.
 
