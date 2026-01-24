@@ -21,6 +21,7 @@ Instant startup, small footprint with Tauri. No Electron. No React.
 - Type or use the on-screen keyboard
 - Hit Enter or Press Send
 
+---
 
 ### 📥 RX On-screen Options
 
@@ -53,6 +54,7 @@ Instant startup, small footprint with Tauri. No Electron. No React.
 - **Full ASCII Set** – All characters available as clickable keys
 - **Control & Non-printables** – Send control codes and edge cases instantly
 - **Hybrid Input** – Works alongside normal keyboard typing
+
 ---
 
 ### 🚀 High-Speed Capture (With Low Level Stability)
