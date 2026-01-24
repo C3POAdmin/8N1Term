@@ -1,10 +1,10 @@
 # ![](src-tauri/icons/Square44x44Logo.png) 8N1Term 
 **A next-generation serial terminal that removes ASCII table lookup.**
 
-8N1Term is a modern re-thinking of the classic serial terminal.  
-Mixed mode I/O. No Split screens. No menus. No settings. No ASCII charts. 
-Everything is **on screen, visible, and immediately usable**.
-Instant startup, small footprint with Tauri. No Electron. No React.
+- 8N1Term is a modern re-thinking of the classic serial terminal.  
+- Mixed mode I/O. No Split screens. No menus. No settings. No ASCII charts. 
+- Everything is **on screen, visible, and immediately usable**.
+- Instant startup, small footprint with Tauri. No Electron. No React.
 
 ---
 
