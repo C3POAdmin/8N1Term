@@ -2,12 +2,13 @@
 **A next-generation serial terminal that removes ASCII table lookup.**
 
 8N1Term is a modern re-thinking of the classic serial terminal.  
-No menus. No modal dialogs. No digging through settings. No ASCII charts.  
+Mixed mode I/O. No Split screens. No menus. No settings. No ASCII charts. 
 Everything is **on screen, visible, and immediately usable**.
+Instant startup, small footprint with Tauri. No Electron. No React.
 
 ---
 
-### Single-Surface IO
+### Single-Surface I/O
 
 ![Main UI](screenshot.png)
 
