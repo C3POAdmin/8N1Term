@@ -5,6 +5,34 @@ It is not a schedule or a commitment — priorities may change based on real-wor
 
 ---
 
+## Additional Plotting style for long term data recording
+
+### Time-Based — Long-term value sampling (Proposed)
+*(Sparse, event-driven measurements over real time)*
+Value
+│
+│        │
+│        │
+│   │    │
+│   │    │
+│   │    │
+└───┼────┼────────────── Time
+    t1   t2            t3
+
+
+### Value-Based — Quick per-value sampling (Completed)
+*(Continuous or high-frequency measurements)*
+
+Value
+│        ●───●───●───●
+│      ●
+│    ●
+│  ●
+└──────────────────── Time
+
+---
+
+
 ## Protocol-aware helpers (e.g. MODBUS)
 
 Explore adding **protocol-aware helpers** for common industrial / embedded protocols, starting with MODBUS-style framing.
