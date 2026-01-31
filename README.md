@@ -68,7 +68,7 @@
 
 ---
 
-### 📈 Serial Plotter
+### 📈 Data Plotter
 
 Opens a separate Plotter window for live graphing of **numeric values automatically extracted** from incoming serial data streams.
 
@@ -78,7 +78,7 @@ Each plotted data point includes:
 - **Extracted numeric value**
 - **Time-of-day timestamp** with millisecond precision (`HH:MM:SS.mmm`)
 
-![Serial Plotter](screenshot-Plotter.png)
+![Data Plotter](screenshot-Plotter.png)
 
 ---
 
