@@ -126,8 +126,7 @@
 		  // delimiter
 		  if (token.length) {
 			const y = Number(token)
-
-			if (Number.isFinite(y)) {
+			if (Number.isFinite(y) && y < 1000) {
 			  seriesData.push({
 				x: xIndex++,
 				y,
@@ -145,7 +144,7 @@
 	  if (token.length) {
 		const y = Number(token)
 
-		if (Number.isFinite(y)) {
+		if (Number.isFinite(y) && y < 1000) {
 		  seriesData.push({
 			x: xIndex++,
 			y,
