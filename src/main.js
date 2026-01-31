@@ -1546,7 +1546,7 @@ export async function openPlotterWindow() {
 	  }
 
 	  win = new WebviewWindow(label, {
-		title: 'Serial Plotter',
+		title: '8N1Term Data Plotter',
 		url: 'plotter.html',
 		width: 900,
 		height: 500,
