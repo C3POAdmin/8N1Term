@@ -19,7 +19,16 @@ Install project dependencies from the project folder:
 npm install
 ```
 
-Run the project in dev mode:
+## Development run 
+
+Run the project in dev mode (slow the first time):
 ```sh
 npx tauri dev
 ```
+
+## Compile
+
+```sh
+npx tauri build
+```
+
