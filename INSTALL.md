@@ -1,6 +1,6 @@
 # Installation (Windows)
 
-This project uses **Tauri + Rust + Node.js**.
+This project uses **Tauri + Rust + Node.js tools**.
 
 ## Prerequisites
 
