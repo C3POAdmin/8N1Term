@@ -33,6 +33,11 @@ Value
 ---
 
 
+### Filter by Min and Max (Avoid Phone number or other large non metric values)
+Add numeric view-range filters (AUTO, 16-bit, 24-bit, 32-bit, 64-bit) to the graph for rapid sanity-checking of incoming data.
+
+---
+
 ## Protocol-aware helpers (e.g. MODBUS)
 
 Explore adding **protocol-aware helpers** for common industrial / embedded protocols, starting with MODBUS-style framing.
