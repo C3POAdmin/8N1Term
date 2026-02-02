@@ -118,93 +118,78 @@
 	  let emit = false
 	  const packet = event.payload   // Uint8Array or number[]
 
-		packet.forEach((b) => {
-		  // Allowed token chars: '0'..'9', '.', '-'
-		  const isDigit = (b >= 48 && b <= 57)
-		  const isDot   = (b === 46) // '.'
-		  const isMinus = (b === 45) // '-'
+	packet.forEach((b) => {
+	  // Allowed token chars: '0'..'9', '.', '-'
+	  const isDigit = (b >= 48 && b <= 57)
+	  const isDot   = (b === 46) // '.'
+	  const isMinus = (b === 45) // '-'
 
-		  if (isDigit || isDot || isMinus) {
-			token += String.fromCharCode(b)
-			return
-		  }
-
-		  // ---- delimiter reached: process current token (if any) ----
-		  if (!token.length) return
-
-		  // State: scan token for rule checks (no regex)
-		  let dotCount = 0
-		  let minusCount = 0
-		  let minusPos = -1
-
-		  for (let i = 0; i < token.length; i++) {
-			const c = token.charCodeAt(i)
-
-			if (c === 46) {               // '.'
-			  dotCount++
-			  // REJECT: more than one dot => likely IP/phone-ish or junk
-			  if (dotCount > 1) { token = ''; return }
-			} else if (c === 45) {        // '-'
-			  minusCount++
-			  if (minusPos === -1) minusPos = i
-			  // REJECT: more than one minus
-			  if (minusCount > 1) { token = ''; return }
-			} else if (c >= 48 && c <= 57) {
-			  // digit OK
-			} else {
-			  // REJECT: should never happen due to tokenization rule,
-			  // but keeps the logic airtight.
-			  token = ''
-			  return
-			}
-		  }
-
-		  // REJECT: minus present but not at start (e.g. "12-3")
-		  if (minusCount === 1 && minusPos !== 0) { token = ''; return }
-
-		  // REJECT: degenerate / not-a-number shaped tokens
-		  // "-", ".", "-."
-		  if (
-			token === '-' ||
-			token === '.' ||
-			token === '-.' ||
-			token === ''
-		  ) { token = ''; return }
-
-		  // ACCEPT/REJECT: numeric conversion and range checks
-		  const y = Number(token)
-
-		  // REJECT: not finite (NaN/Infinity)
-		  if (!Number.isFinite(y)) { token = ''; return }
-
-		  // ACCEPT: push sample
-		  seriesData.push({
-			x: xIndex++,
-			y,
-			t: Date.now()
-		  })
-		  emit = true
-
-		  // Reset token for next parse
-		  token = ''
-		})
-	  })
-
-	  // packet boundary acts as delimiter
-	  if (token.length) {
-		const y = Number(token)
-
-		if (Number.isFinite(y) && y < 1000) {
-		  seriesData.push({
-			x: xIndex++,
-			y,
-			t: Date.now()
-		  })
-		  emit = true
-		}
-
-		token = ''
+	  if (isDigit || isDot || isMinus) {
+		token += String.fromCharCode(b)
+		return
 	  }
+
+	  // ---- delimiter reached: process current token (if any) ----
+	  if (!token.length) return
+
+	  // State: scan token for rule checks (no regex)
+	  let dotCount = 0
+	  let minusCount = 0
+	  let minusPos = -1
+
+	  for (let i = 0; i < token.length; i++) {
+		const c = token.charCodeAt(i)
+
+		if (c === 46) {               // '.'
+		  dotCount++
+		  // REJECT: more than one dot => likely IP/phone-ish or junk
+		  if (dotCount > 1) { token = ''; return }
+		} else if (c === 45) {        // '-'
+		  minusCount++
+		  if (minusPos === -1) minusPos = i
+		  // REJECT: more than one minus
+		  if (minusCount > 1) { token = ''; return }
+		} else if (c >= 48 && c <= 57) {
+		  // digit OK
+		} else {
+		  // REJECT: should never happen due to tokenization rule,
+		  // but keeps the logic airtight.
+		  token = ''
+		  return
+		}
+	  }
+
+	  // REJECT: minus present but not at start (e.g. "12-3")
+	  if (minusCount === 1 && minusPos !== 0) { token = ''; return }
+
+	  // REJECT: degenerate / not-a-number shaped tokens
+	  // "-", ".", "-."
+	  if (
+		token === '-' ||
+		token === '.' ||
+		token === '-.' ||
+		token === ''
+	  ) { token = ''; return }
+
+	  // ACCEPT/REJECT: numeric conversion and range checks
+	  const y = Number(token)
+
+	  // REJECT: not finite (NaN/Infinity)
+	  if (!Number.isFinite(y)) { token = ''; return }
+
+
+	  // ACCEPT: push sample
+	  seriesData.push({
+		x: xIndex++,
+		y,
+		t: Date.now()
+	  })
+	  emit = true
+
+	  // Reset token for next parse
+	  token = ''
+	})
+
 
 	  if (emit) {
 		plotter.updateSeries([{ data: seriesData }], false)
