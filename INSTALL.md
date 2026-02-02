@@ -32,3 +32,7 @@ npx tauri dev
 npx tauri build
 ```
 
+Executables will arrive here:
+```sh
+8N1Term\src-tauri\target\release\bundle
+```
