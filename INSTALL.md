@@ -1,6 +1,8 @@
 # Installation (Windows)
 
-This project uses **Tauri + Rust + Node.js tools**.
+This project uses **Tauri + Rust + Node.js**.
+Node.js is used only for tooling during development and build.
+It is not bundled with or required by the Tauri application at runtime.
 
 ## Prerequisites
 
