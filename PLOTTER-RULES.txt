@@ -76,11 +76,3 @@ Rejected if numeric conversion yields `NaN` or `Infinity`.
 
 - `-` / `.` / `-.` (already rejected earlier)
 - (any token that results in non-finite conversion)
-
-## Notes / Limitations
-
-- Scientific notation is **not supported**:
-  - `1e-3` will tokenize as `1` and `-3` because `e` is a delimiter.
-- This parser is designed for **robust plotting**, not for full numeric language support.
-- If your stream uses binary framing, prefer the byte/CRC tooling views rather than relying on this text plotter.
-
