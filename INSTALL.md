@@ -17,7 +17,9 @@ Install these once:
 Install project dependencies from the project folder:
 ```sh
 npm install
+```
 
 Run the project in dev mode:
 ```sh
 npx tauri dev
+```
