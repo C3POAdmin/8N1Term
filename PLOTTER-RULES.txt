@@ -1,0 +1,86 @@
+# Plotter Rules
+
+This plotter extracts numeric samples from a byte stream by tokenizing ASCII text and applying strict validation rules to avoid accidental parsing of non-sample content (e.g. IP addresses, phone numbers, mixed text).
+
+## Tokenization
+
+A **token** is a contiguous run of the following ASCII characters:
+
+- Digits: `0`–`9`
+- Decimal point: `.`
+- Minus sign: `-`
+
+**Any other character** terminates the current token and triggers processing.
+
+Examples (delimiters shown as `|`):
+
+- `12.3|45|-6|` → tokens: `12.3`, `45`, `-6`
+- `temp=23.1C|` → tokens: `23.1`
+- `A1B2|` → tokens: `1`, `2`
+
+## Acceptance Rules (what is considered a valid number)
+
+A token is accepted if **all** of the following hold:
+
+1. Contains only: digits, optional `.` and optional leading `-`
+2. At most **one dot** (`.`)
+3. At most **one minus** (`-`)
+4. If a minus exists, it must be at the **start** of the token
+5. Token must not be a degenerate numeric shape:
+   - `-`
+   - `.`
+   - `-.`
+6. Must convert to a finite JavaScript number (`Number.isFinite(...)`)
+
+### Accepted examples
+
+- `0`
+- `12`
+- `-12`
+- `12.34`
+- `-12.34`
+- `.5`
+- `-.5`
+- `5.`
+
+## Rejection Rules (what is rejected and why)
+
+The following patterns are rejected to reduce false positives:
+
+### Multiple dots
+Rejected if token contains more than one dot.
+
+- `192.168.0.1` → reject (multiple dots; likely IP/structured identifier)
+- `1.2.3` → reject
+
+### Multiple minus signs
+Rejected if token contains more than one minus.
+
+- `--12` → reject
+- `-1-2` → reject
+
+### Minus sign not at the start
+Rejected if a minus appears anywhere other than index 0.
+
+- `12-3` → reject
+
+### Degenerate tokens
+Rejected if token is not a meaningful numeric value.
+
+- `-` → reject
+- `.` → reject
+- `-.` → reject
+
+### Non-finite numeric results
+Rejected if numeric conversion yields `NaN` or `Infinity`.
+
+- `-` / `.` / `-.` (already rejected earlier)
+- (any token that results in non-finite conversion)
+
+## Notes / Limitations
+
+- Scientific notation is **not supported**:
+  - `1e-3` will tokenize as `1` and `-3` because `e` is a delimiter.
+- This parser is designed for **robust plotting**, not for full numeric language support.
+- If your stream uses binary framing, prefer the byte/CRC tooling views rather than relying on this text plotter.
+
