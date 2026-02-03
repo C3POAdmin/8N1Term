@@ -7,17 +7,6 @@ Provide **fast, correct CRC generation and verification** for **80% of real-worl
 
 ---
 
-## Core Philosophy
-
-- Default to **what the world actually uses**
-- Make **common CRCs one click**
-- Allow **minimal customization** where vendors are sloppy
-- Avoid exotic CRC variants unless they are trivial to add
-
-CRC is a **tool**, not a religion.
-
----
-
 ## Primary User Flow
 
 1. User captures or types a data frame
