@@ -243,7 +243,6 @@ await listen('serial_rx', (event) => {
 		plotter.updateSeries([{ data: seriesData }], false)
 
 		if(rawSeriesData.length >= MAX_POINTS) {
-			console.log('shift');
 			rawSeriesData.shift();
 		}
 	}
