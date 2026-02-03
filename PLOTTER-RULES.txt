@@ -22,15 +22,10 @@ Examples (delimiters shown as `|`):
 
 A token is accepted if **all** of the following hold:
 
-1. Contains only: digits, optional `.` and optional leading `-`
+1. Contains only digits, optional `.` and optional leading `-`
 2. At most **one dot** (`.`)
 3. At most **one minus** (`-`)
 4. If a minus exists, it must be at the **start** of the token
-5. Token must not be a degenerate numeric shape:
-   - `-`
-   - `.`
-   - `-.`
-6. Must convert to a finite JavaScript number (`Number.isFinite(...)`)
 
 ### Accepted examples
 
@@ -45,34 +40,38 @@ A token is accepted if **all** of the following hold:
 
 ## Rejection Rules (what is rejected and why)
 
-The following patterns are rejected to reduce false positives:
+The following patterns are rejected to reduce false positives.
 
 ### Multiple dots
-Rejected if token contains more than one dot.
 
-- `192.168.0.1` → reject (multiple dots; likely IP/structured identifier)
+Rejected if the token contains more than one dot.
+
+- `192.168.0.1` → reject (multiple dots; likely IP / structured identifier)
 - `1.2.3` → reject
 
 ### Multiple minus signs
-Rejected if token contains more than one minus.
+
+Rejected if the token contains more than one minus.
 
 - `--12` → reject
 - `-1-2` → reject
 
 ### Minus sign not at the start
+
 Rejected if a minus appears anywhere other than index 0.
 
 - `12-3` → reject
 
 ### Degenerate tokens
-Rejected if token is not a meaningful numeric value.
+
+Rejected if the token does not represent a meaningful numeric value.
 
 - `-` → reject
 - `.` → reject
 - `-.` → reject
 
 ### Non-finite numeric results
+
 Rejected if numeric conversion yields `NaN` or `Infinity`.
 
-- `-` / `.` / `-.` (already rejected earlier)
-- (any token that results in non-finite conversion)
+- Any token that fails `Number.isFinite(...)`
