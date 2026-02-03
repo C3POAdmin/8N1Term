@@ -37,13 +37,11 @@ CRC is a **tool**, not a religion.
 - **8-bit**
 - **16-bit** ✅ (default)
 - **32-bit**
-- **64-bit** *(optional, hidden unless enabled)*
 
 Reality check:
 - **16-bit covers most serial protocols**
 - 8-bit shows up in legacy sensors
 - 32-bit is common in Ethernet / files
-- 64-bit is rare on serial — keep it optional
 
 ---
 
@@ -85,26 +83,6 @@ Mostly for file or packet analysis, not raw serial.
 
 ---
 
-## Data Range Selection (Critical)
-
-CRC is often **not calculated over the entire frame**.
-
-### Range Options
-
-- **Entire buffer**
-- **From index N**
-- **Length M**
-- **Exclude last X bytes** (default = 2 for CRC-16)
-
-This covers:
-- header-excluded CRCs
-- length-byte-excluded CRCs
-- vendor quirks
-
-No need for per-byte include toggles — overkill.
-
----
-
 ## Byte Order Handling
 
 CRC output byte order is **not negotiable**.
@@ -120,24 +98,6 @@ Make this explicit.
 
 ---
 
-## Append vs Verify Mode
-
-### Modes
-
-- **Append CRC**
-  - Calculates CRC
-  - Appends bytes to outgoing frame
-- **Verify CRC**
-  - Assumes CRC already present
-  - Computes and compares
-  - Displays:
-    - ✅ Match
-    - ❌ Mismatch
-    - Expected vs received
-
-Auto-detect when possible, but **manual override wins**.
-
----
 
 ## Custom CRC Mode (Minimal, Not Scary)
 
@@ -154,34 +114,6 @@ For vendor-specific weirdness.
 No lookup tables exposed.
 No math explanations.
 Advanced users already know what these mean.
-
----
-
-## Start Byte / Header Skipping
-
-### Optional Simple Control
-
-- **Skip first N bytes**
-
-This replaces:
-- “Start byte”
-- “Address byte”
-- “Frame type byte”
-
-Do **not** label it protocol-specific.
-Just call it what it is.
-
----
-
-## What We Explicitly Ignore (On Purpose)
-
-- Bit-level CRC visualizers
-- Polynomial math walkthroughs
-- Named telecom CRC variants nobody uses
-- Automatic protocol inference
-- CRC chaining across frames
-
-If someone needs those, they’re not the target user.
 
 ---
 
@@ -219,7 +151,3 @@ Because:
 
 Only add if it doesn’t clutter the UI.
 
----
-
-**CRC in 8N1Term is a productivity tool.  
-Not a standards museum.**
