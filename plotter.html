@@ -77,8 +77,8 @@ import { listen } from '@tauri-apps/api/event'
 
 let seriesData = []
 let rawSeriesData = []
-const min = -10000;
-const max = 10000;
+let min = -10000;
+let max = 10000;
 
 const MAX_POINTS = 300
 
@@ -249,6 +249,33 @@ await listen('serial_rx', (event) => {
 	}
 })
 
+const minInput = document.getElementById('min')
+const maxInput = document.getElementById('max')
+
+minInput.addEventListener('change', updateMinMax)
+maxInput.addEventListener('change', updateMinMax)
+
+minInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') e.target.blur()
+})
+
+maxInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') e.target.blur()
+})
+
+function updateMinMax() {
+  const newMin = Number(minInput.value)
+  const newMax = Number(maxInput.value)
+
+  if (!Number.isFinite(newMin) || !Number.isFinite(newMax)) return
+  if (newMin > newMax) return
+
+  min = newMin
+  max = newMax
+
+  seriesData = rawSeriesData.filter(p => p.y >= min && p.y <= max)
+  plotter.updateSeries([{ data: seriesData }], false)
+}
 
 </script>
 
