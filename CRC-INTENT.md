@@ -87,12 +87,7 @@ Make this explicit.
 
 ---
 
-
-## Custom CRC Mode (Minimal, Not Scary)
-
-For vendor-specific weirdness.
-
-### Custom Fields (Shown Only in Custom Mode)
+### Custom Fields (Maybe - Thinking about it)
 
 - Polynomial (hex)
 - Init value (hex)
@@ -106,7 +101,7 @@ Advanced users already know what these mean.
 
 ---
 
-## Defaults (Very Important)
+## Defaults
 
 On first run:
 
