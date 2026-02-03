@@ -131,23 +131,7 @@ This matches **real devices out of the box**.
 
 ---
 
-## Why This Covers 80%+
+## Future
 
-Because:
-- Most serial devices are lazy
-- Vendors reuse firmware
-- Modbus CRC is everywhere
-- Errors are usually range or byte-order, not math
-
-8N1Term should help users **see that instantly**, not fight it.
-
----
-
-## Future (Optional, Not Required)
-
-- Live CRC preview as bytes arrive
-- Highlight CRC bytes in hex view
-- Remember last CRC config per device
-
-Only add if it doesn’t clutter the UI.
+- RX CRC bytes are visually distinguished (slightly different blue hue) for identification only
 
