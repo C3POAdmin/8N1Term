@@ -6,86 +6,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: #0d1117;
-    color: #c9d1d9;
-    height: 100%;
-    width: 100%;
-	overflow: hidden;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  }
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #0d1117;
+		color: #c9d1d9;
+		height: 100%;
+		width: 100%;
+		overflow: hidden;
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	}
 
-  #plotter {
-    height: 100%;
-    width: 100%;
-  }
+	#plotter {
+		height: 100%;
+		width: 100%;
+	}
+
+	#filter {
+		position:absolute;
+		right:10px;
+		top:10px;
+	}
+	.text {
+		float:left;
+		margin-right:10px;
+		margin-top:-2px;
+	}
+	#min {
+		float:left;
+		margin-right:10px;
+	}
+	#max {
+		float:left;
+	}
   
-  #min {
-  
-  }
-  #max {
-  
-  }
-  
+	.ft-input {
+		width: 80px;
+		padding: 2px 6px;
+		font-size: 13px;
+		border: 2px solid rgba(148, 163, 184, 0.45);
+		background: rgba(2, 6, 23, 0.6);
+		color: #e5e7eb;
+		border-radius: 8px;
+	}
+
+	.ft-input:hover {
+		border-color: rgba(148, 163, 184, 0.65);
+		background: rgba(2, 6, 23, 0.75);
+	}
+
+	.ft-input:active {
+		transform: translateY(1px);
+		border-color: rgba(148, 163, 184, 1);
+	}
 </style>
 </head>
 <body>
 
 <div id="plotter"></div>
-<div 
+
+<div id="filter">
+	<div class="text">Filter:</div>
+	<input id="min" class="ft-input" placeholder="min" value="-10000">
+	<input id="max" class="ft-input" placeholder="max" value="10000">
+</div>
+
 <script type="module">
-  import ApexCharts from 'apexcharts'
-  import { listen } from '@tauri-apps/api/event'
+import ApexCharts from 'apexcharts'
+import { listen } from '@tauri-apps/api/event'
 
-  const MAX_POINTS = 300
+let seriesData = []
+let rawSeriesData = []
+const min = -10000;
+const max = 10000;
 
-  const seriesData = []
+const MAX_POINTS = 300
 
-  const options = {
-    chart: {
-      type: 'line',
-      height: '100%',
-      width: '100%',
-      animations: {
-        enabled: true,
-        easing: 'linear',
-        speed: 150
-      },
-      background: 'transparent',
+let token = ''
+let xIndex = 0
+
+const options = {
+	chart: {
+	  type: 'line',
+	  height: '100%',
+	  width: '100%',
+	  animations: {
+		enabled: true,
+		easing: 'linear',
+		speed: 150
+	  },
+	  background: 'transparent',
 	  parentHeightOffset: 0, 
-      toolbar: { show: false },
-      zoom: { enabled: false }
-    },
+	  toolbar: { show: false },
+	  zoom: { enabled: false }
+	},
 
-    theme: {
-      mode: 'dark'
-    },
+	theme: {
+	  mode: 'dark'
+	},
 
 	stroke: {
-	    curve: 'straight',
+		curve: 'straight',
 		width: 2
 	},
 
-    grid: {
-      borderColor: '#1f2937',
-      strokeDashArray: 3
-    },
+	grid: {
+	  borderColor: '#1f2937',
+	  strokeDashArray: 3
+	},
 
-    xaxis: {
-      type: 'datetime',
-      labels: {
-        style: { colors: '#8b949e' }
-      }
-    },
+	xaxis: {
+	  type: 'datetime',
+	  labels: {
+		style: { colors: '#8b949e' }
+	  }
+	},
 
-    yaxis: {
-      decimalsInFloat: 2,
-      labels: {
-        style: { colors: '#8b949e' }
-      }
-    },
+	yaxis: {
+	  decimalsInFloat: 2,
+	  labels: {
+		style: { colors: '#8b949e' }
+	  }
+	},
 
 	tooltip: {
 	  theme: 'dark',
@@ -110,98 +152,101 @@
 	  }
 	},
 
-    series: [{
-      name: 'Value',
-      data: seriesData
-    }]
-  }
+	series: [{
+	  name: 'Value',
+	  data: seriesData
+	}]
+}
 
-  const plotter = new ApexCharts(document.querySelector('#plotter'), options)
-  plotter.render()
+const plotter = new ApexCharts(document.querySelector('#plotter'), options)
+plotter.render()
 
-	let token = ''
-	let xIndex = 0
+await listen('serial_rx', (event) => {
+	let emit = false
+	const packet = event.payload   // Uint8Array or number[]
+	console.log('reader in: ',packet.length);
+	for (let bi = 0; bi < packet.length; bi++) {
+	    const b = packet[bi]
+		// Allowed token chars: '0'..'9', '.', '-'
+		const isDigit = (b >= 48 && b <= 57)
+		const isDot   = (b === 46) // '.'
+		const isMinus = (b === 45) // '-'
 
-	await listen('serial_rx', (event) => {
-	  let emit = false
-	  const packet = event.payload   // Uint8Array or number[]
-
-	packet.forEach((b) => {
-	  // Allowed token chars: '0'..'9', '.', '-'
-	  const isDigit = (b >= 48 && b <= 57)
-	  const isDot   = (b === 46) // '.'
-	  const isMinus = (b === 45) // '-'
-
-	  if (isDigit || isDot || isMinus) {
-		token += String.fromCharCode(b)
-		return
-	  }
-
-	  // ---- delimiter reached: process current token (if any) ----
-	  if (!token.length) return
-
-	  // State: scan token for rule checks (no regex)
-	  let dotCount = 0
-	  let minusCount = 0
-	  let minusPos = -1
-
-	  for (let i = 0; i < token.length; i++) {
-		const c = token.charCodeAt(i)
-
-		if (c === 46) {               // '.'
-		  dotCount++
-		  // REJECT: more than one dot => likely IP/phone-ish or junk
-		  if (dotCount > 1) { token = ''; return }
-		} else if (c === 45) {        // '-'
-		  minusCount++
-		  if (minusPos === -1) minusPos = i
-		  // REJECT: more than one minus
-		  if (minusCount > 1) { token = ''; return }
-		} else if (c >= 48 && c <= 57) {
-		  // digit OK
-		} else {
-		  // REJECT: should never happen due to tokenization rule,
-		  // but keeps the logic airtight.
-		  token = ''
-		  return
+		if (isDigit || isDot || isMinus) {
+			token += String.fromCharCode(b)
+			continue
 		}
-	  }
 
-	  // REJECT: minus present but not at start (e.g. "12-3")
-	  if (minusCount === 1 && minusPos !== 0) { token = ''; return }
+		// ---- delimiter reached: process current token (if any) ----
+		if (!token.length) continue
 
-	  // REJECT: degenerate / not-a-number shaped tokens
-	  // "-", ".", "-."
-	  if (
-		token === '-' ||
-		token === '.' ||
-		token === '-.' ||
-		token === ''
-	  ) { token = ''; return }
+		// State: scan token for rule checks (no regex)
+		let dotCount = 0
+		let minusCount = 0
+		let minusPos = -1
 
-	  // ACCEPT/REJECT: numeric conversion and range checks
-	  const y = Number(token)
+		for (let i = 0; i < token.length; i++) {
+			const c = token.charCodeAt(i)
 
-	  // REJECT: not finite (NaN/Infinity)
-	  if (!Number.isFinite(y)) { token = ''; return }
+			if (c === 46) {               // '.'
+			  dotCount++
+			  // REJECT: more than one dot => likely IP/phone-ish or junk
+			  if (dotCount > 1) { token = ''; continue }
+			} else if (c === 45) {        // '-'
+			  minusCount++
+			  if (minusPos === -1) minusPos = i
+			  // REJECT: more than one minus
+			  if (minusCount > 1) { token = ''; continue }
+			} else if (c >= 48 && c <= 57) {
+			  // digit OK
+			} else {
+			  // REJECT: should never happen due to tokenization rule,
+			  // but keeps the logic airtight.
+			  token = ''
+			  continue
+			}
+		}
+
+		// REJECT: minus present but not at start (e.g. "12-3")
+		if (minusCount === 1 && minusPos !== 0) { token = ''; continue }
+
+		// REJECT: degenerate / not-a-number shaped tokens
+		// "-", ".", "-."
+		if (
+			token === '-' ||
+			token === '.' ||
+			token === '-.' ||
+			token === ''
+		) { token = ''; continue }
+
+		// ACCEPT/REJECT: numeric conversion and range checks
+		const y = Number(token)
+
+		// REJECT: not finite (NaN/Infinity)
+		if (!Number.isFinite(y)) { token = ''; continue }
 
 
-	  // ACCEPT: push sample
-	  seriesData.push({
-		x: xIndex++,
-		y,
-		t: Date.now()
-	  })
-	  emit = true
+		// ACCEPT: push sample
+		rawSeriesData.push({
+			x: xIndex++,
+			y,
+			t: Date.now()
+		})
+		emit = true
 
-	  // Reset token for next parse
-	  token = ''
-	})
+		// Reset token for next parse
+		token = ''
+	}
 
-
-	  if (emit) {
+	if (emit) {
+		seriesData = rawSeriesData.filter(p => p.y >= min && p.y <= max)
 		plotter.updateSeries([{ data: seriesData }], false)
-	  }
+
+		if(rawSeriesData.length >= MAX_POINTS) {
+			console.log('shift');
+			rawSeriesData.shift();
+		}
+	}
 })
 
 
