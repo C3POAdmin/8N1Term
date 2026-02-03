@@ -107,11 +107,7 @@ On first run:
 
 - CRC Width: **16-bit**
 - Preset: **Modbus**
-- Range: **Exclude last 2 bytes**
 - Byte order: **LSB → MSB**
-- Mode: **Verify if data ends with 2 bytes, else Append**
-
-This matches **real devices out of the box**.
 
 ---
 
