@@ -172,9 +172,7 @@ r_rx.insertAdjacentHTML(
   '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="disconnect">Disconnect</button>'
 );
 const el_disconnect = document.getElementById("disconnect")
-el_disconnect.addEventListener("click", function() {
-	closePort();
-});
+el_disconnect.addEventListener("click", closePort);
 el_disconnect.hidden = true;
 
 r_rx.insertAdjacentHTML(
@@ -191,7 +189,6 @@ r_rx.insertAdjacentHTML(
 );
 const el_clear = document.getElementById("clear_rx")
 el_clear.addEventListener("click", clearRX);
-el_disconnect.hidden = true;
 
 r_rx.insertAdjacentHTML(
   'beforeend',
@@ -264,6 +261,20 @@ r_tx.insertAdjacentHTML(
 );
 document.getElementById("clear_tx").addEventListener("click", clearTX);
 
+r_tx.insertAdjacentHTML(
+  'beforeend',
+  '<button style="float:right;margin-top:-2px;margin-right:10px;" class="ft-btn ft-small ft-right-btn" id="apply_rx">Apply</button>'
+);
+const el_apply = document.getElementById("apply_rx")
+el_apply.addEventListener("click", applyRX);
+
+r_tx.insertAdjacentHTML(
+  'beforeend',
+  '<button style="float:right;margin-top:-2px;" class="ft-btn ft-small ft-left-btn" id="crc_rx">CRC</button>'
+);
+const el_crc = document.getElementById("crc_rx")
+el_crc.addEventListener("click", crcRX);
+
 const tog_echo = createToggle({
   label: "Echo",
   initial: echo,
@@ -327,6 +338,13 @@ await connect(true);
 root.hidden = false;
 
 //=================================== helpers ==============================/
+
+function crcRX() {
+}
+
+function applyRX() {
+}
+
 
 function clearRX() {
 	el_rx.innerHTML = '';
