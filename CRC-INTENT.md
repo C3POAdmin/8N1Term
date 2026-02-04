@@ -63,15 +63,6 @@ Minimal UI — most users won’t need more.
 
 ---
 
-### CRC-32 Presets
-
-- CRC-32 (Ethernet / ZIP)
-- CRC-32C (Castagnoli)
-
-Mostly for file or packet analysis, not raw serial.
-
----
-
 ## Byte Order Handling
 
 CRC output byte order is **not negotiable**.

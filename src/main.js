@@ -46,6 +46,67 @@ let 	speedArray 		= [];
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
+const CRC_DEFS = [
+  // ---- CRC-8 ----
+  {
+    name: "CRC-8",
+    width: 8,
+    poly: 0x07,
+    init: 0x00,
+    xorOut: 0x00,
+    reflectIn: false,
+    reflectOut: false,
+  },
+  {
+    name: "CRC-8-MAXIM",
+    width: 8,
+    poly: 0x31,
+    init: 0x00,
+    xorOut: 0x00,
+    reflectIn: true,
+    reflectOut: true,
+  },
+
+  // ---- CRC-16 ----
+  {
+    name: "CRC-16-Modbus",
+    width: 16,
+    poly: 0x8005,
+    init: 0xFFFF,
+    xorOut: 0x0000,
+    reflectIn: true,
+    reflectOut: true,
+  },
+  {
+    name: "CRC-16-IBM",
+    width: 16,
+    poly: 0x8005,
+    init: 0x0000,
+    xorOut: 0x0000,
+    reflectIn: true,
+    reflectOut: true,
+  },
+  {
+    name: "CRC-16-CCITT",
+    width: 16,
+    poly: 0x1021,
+    init: 0xFFFF,
+    xorOut: 0x0000,
+    reflectIn: false,
+    reflectOut: false,
+  },
+  {
+    name: "CRC-16-X25",
+    width: 16,
+    poly: 0x1021,
+    init: 0xFFFF,
+    xorOut: 0xFFFF,
+    reflectIn: true,
+    reflectOut: true,
+  },
+];
+
+
 const ASCII_CTRL = [
   'NUL','SOH','STX','ETX','EOT','ENQ','ACK','BEL',
   'BS','TAB','LF','VT','FF','CR','SO','SI',
