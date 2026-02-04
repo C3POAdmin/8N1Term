@@ -106,7 +106,6 @@ const CRC_DEFS = [
   },
 ];
 
-
 const ASCII_CTRL = [
   'NUL','SOH','STX','ETX','EOT','ENQ','ACK','BEL',
   'BS','TAB','LF','VT','FF','CR','SO','SI',

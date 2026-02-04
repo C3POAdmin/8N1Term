@@ -77,6 +77,16 @@ body {
   transition: transform 0.04s ease, border-color 0.12s ease, background 0.12s ease;
 }
 
+.ft-left-btn {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;	
+}
+
+.ft-right-btn {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
 .ft-small {
 	padding: 2px 5px;
     border-radius: 7px;
