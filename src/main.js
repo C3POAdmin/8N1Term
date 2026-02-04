@@ -46,7 +46,8 @@ let 	speedArray 		= [];
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
-const CRC_CUSTOM = {
+const CRC_APPLY = {
+	def_no: 0,
 	poly: false,
 	poly_value:0,
 	init: false,
@@ -1651,3 +1652,161 @@ export async function openPlotterWindow() {
 	  }
 	})
 }
+
+
+/******************** CRC *********************/
+function setInput(id, value, disabled) {
+  const el = document.getElementById(id);
+  el.value = "0x" + value.toString(16).toUpperCase();
+  el.disabled = disabled;
+}
+
+function setToggle(id, state) {
+  const el = document.getElementById(id);
+  if (el?.toggle) el.toggle(state);
+}
+
+function setupCustomCRCControls() {
+  const polyToggle = createToggle({
+    label: "Custom poly",
+    initial: false,
+    onChange: (_, state) => {
+      CRC_APPLY.poly = state;
+      setInput("crc-poly-input", CRC_APPLY.poly_value, !state);
+    }
+  });
+
+  const initToggle = createToggle({
+    label: "Custom init",
+    initial: false,
+    onChange: (_, state) => {
+      CRC_APPLY.init = state;
+      setInput("crc-init-input", CRC_APPLY.init_value, !state);
+    }
+  });
+
+  document.getElementById("crc-poly-toggle").appendChild(polyToggle);
+  document.getElementById("crc-init-toggle").appendChild(initToggle);
+
+  document.getElementById("crc-poly-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      CRC_APPLY.poly_value = parseInt(e.target.value, 16) || 0;
+    }
+  });
+
+  document.getElementById("crc-init-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      CRC_APPLY.init_value = parseInt(e.target.value, 16) || 0;
+    }
+  });
+}
+
+async function pickCRC() {
+  await Swal.fire({
+    title: "CRC Setup",
+    html: `
+      <div class="ft-wrap" role="table" id="select_crc"></div>
+
+      <div class="ft-custom" style="margin-top:12px;text-align:left;">
+        <div class="ft-row">
+          <div id="crc-poly-toggle"></div>
+          <input
+            id="crc-poly-input"
+            class="ft-input"
+            style="width:140px"
+            placeholder="poly (hex)"
+            disabled
+          />
+        </div>
+
+        <div class="ft-row" style="margin-top:8px;">
+          <div id="crc-init-toggle"></div>
+          <input
+            id="crc-init-input"
+            class="ft-input"
+            style="width:140px"
+            placeholder="init (hex)"
+            disabled
+          />
+        </div>
+      </div>
+
+      <div class="ft-hint" style="margin-top:12px;">
+        Select a CRC type, or enable custom poly / init overrides.
+      </div>
+    `,
+    showConfirmButton: false,
+    allowOutsideClick: false,
+    allowEscapeKey: true,
+    background: "#0b1220",
+    color: "#e5e7eb",
+    width: 720,
+    customClass: {
+      popup: "ft-swal",
+      title: "ft-title",
+      htmlContainer: "ft-html",
+    },
+    didOpen: () => {
+      renderCRCDefs();
+      handleCRCDefs();
+
+      setupCustomCRCControls();
+      Swal.getPopup().focus();
+    }
+  });
+}
+
+function handleCRCDefs() {
+  const root = document.getElementById("select_crc");
+
+  root.addEventListener("click", (e) => {
+    const btn = e.target.closest(".ft-btn");
+    if (!btn) return;
+
+    const idx = Number(btn.dataset.crc);
+    const def = CRC_DEFS[idx];
+
+    CRC_APPLY.def_no = idx;
+
+    // Reset custom overrides
+    CRC_APPLY.poly = false;
+    CRC_APPLY.init = false;
+    CRC_APPLY.poly_value = def.poly;
+    CRC_APPLY.init_value = def.init;
+
+    // Update UI
+    setToggle("crc-poly-toggle", false);
+    setToggle("crc-init-toggle", false);
+
+    setInput("crc-poly-input", def.poly, true);
+    setInput("crc-init-input", def.init, true);
+  });
+}
+
+function renderCRCDefs() {
+  const el = document.getElementById("select_crc");
+
+  const rows = CRC_DEFS.map((d, i) => {
+    const meta = [
+      `${d.width}-bit`,
+      `poly 0x${d.poly.toString(16).toUpperCase()}`,
+      `init 0x${d.init.toString(16).toUpperCase()}`,
+      d.reflectIn ? "LSB" : "MSB"
+    ].join(" · ");
+
+    return `
+      <div class="ft-row" role="row">
+        <button class="ft-btn" type="button" data-crc="${i}">
+          ${d.name}
+        </button>
+
+        <div class="ft-meta">
+          <div class="ft-sub">${meta}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  el.innerHTML = rows;
+}
+
