@@ -46,12 +46,12 @@ let 	speedArray 		= [];
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
-const CRC_CUSTOM = [
+const CRC_CUSTOM = {
 	poly: false,
 	poly_value:0,
 	init: false,
 	init_value:0
-]
+}
 	
 const CRC_DEFS = [
   // ---- CRC-8 ----
