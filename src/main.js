@@ -46,7 +46,7 @@ let 	speedArray 		= [];
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
-const CRC_TYPE = {	// set from popup
+const CHECKSUM_TYPE = {	// set from popup
 	def_no: 0,
 	poly: false,
 	poly_value:0x00,
@@ -84,7 +84,7 @@ const CHECK_DEFS = [
   // ===== CRC-16 =====
   {
     type: "CRC",
-    name: "CRC-16-Modbus",
+    name: "CRC-16-MODBUS",
     width: 16,
     poly: 0x8005,
     init: 0xFFFF,
@@ -129,6 +129,8 @@ const CHECK_DEFS = [
     name: "XOR-8",
     width: 8,
     xorSeed: 0x00,   // only allowed values: 0x00 or 0xFF
+    poly: null,
+    init: null,
   },
 
   // ===== SUM =====
@@ -136,11 +138,15 @@ const CHECK_DEFS = [
     type: "SUM",
     name: "SUM-8",
     width: 8,
+    poly: null,
+    init: null,
   },
   {
     type: "SUM",
     name: "SUM-16",
     width: 16,
+    poly: null,
+    init: null,
   },
 ];
 
@@ -301,10 +307,10 @@ el_apply.addEventListener("click", applyRX);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-top:-2px;" class="ft-btn ft-small ft-left-btn" id="crc_rx">CRC</button>'
+  '<button style="float:right;margin-top:-2px;" class="ft-btn ft-small ft-left-btn" id="checksum_rx">Checksum</button>'
 );
-const el_crc = document.getElementById("crc_rx")
-el_crc.addEventListener("click", crcRX);
+const el_checksum = document.getElementById("checksum_rx")
+el_checksum.addEventListener("click", checksumRX);
 
 const tog_echo = createToggle({
   label: "Echo",
@@ -1686,10 +1692,11 @@ export async function openPlotterWindow() {
 }
 
 
-/******************** CRC *********************/
+/******************** Checksum *********************/
 function setInput(id, value, disabled) {
   const el = document.getElementById(id);
-  if(value == -1)
+  console.log(value);
+  if(value == null)
 	el.value = "";
   else
     el.value = "0x" + value.toString(16).toUpperCase();
@@ -1701,14 +1708,14 @@ function setToggle(id, state) {
   if (el?.toggle) el.toggle(state);
 }
 
-function setupCustomCRCControls() {
+function setupCustomChecksumControls() {
   const polyToggle = createToggle({
     label: "Custom poly",
 	text_width: 80,
     initial: false,
     onChange: (_, state) => {
-      CRC_TYPE.poly = state;
-      setInput("crc-poly-input", CRC_TYPE.poly_value, !state);
+      CHECKSUM_TYPE.poly = state;
+      setInput("checksum-poly-input", CHECKSUM_TYPE.poly_value, !state);
     }
   });
 
@@ -1717,67 +1724,57 @@ function setupCustomCRCControls() {
 	text_width: 80,
     initial: false,
     onChange: (_, state) => {
-      CRC_TYPE.init = state;
-      setInput("crc-init-input", CRC_TYPE.init_value, !state);
-    }
-  });
-
-  const lsbToggle = createToggle({
-    label: "LSB / MSB",
-	text_width: 80,
-    initial: false,
-    onChange: (_, state) => {
-      CRC_TYPE.lsb = state;
+      CHECKSUM_TYPE.init = state;
+      setInput("checksum-init-input", CHECKSUM_TYPE.init_value, !state);
     }
   });
 
   const seedToggle = createToggle({
-    label: "XOR Seed",
-	text_width: 80,
+    label: "Seed 0x00 / 0xFF",
+	text_width: 105,
     initial: false,
     onChange: (_, state) => {
-      CRC_TYPE.xorSeed = state;
+      CHECKSUM_TYPE.xorSeed = state;
     }
   });
 
-  document.getElementById("crc-poly-toggle").appendChild(polyToggle);
-  document.getElementById("crc-init-toggle").appendChild(initToggle);
-  document.getElementById("crc-seed-toggle").appendChild(seedToggle);
-  document.getElementById("crc-lsb-toggle").appendChild(lsbToggle);
+  document.getElementById("checksum-poly-toggle").appendChild(polyToggle);
+  document.getElementById("checksum-init-toggle").appendChild(initToggle);
+  document.getElementById("checksum-seed-toggle").appendChild(seedToggle);
 
-  document.getElementById("crc-poly-input").addEventListener("keydown", (e) => {
+  document.getElementById("checksum-poly-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      CRC_TYPE.poly_value = parseInt(e.target.value, 16) || 0;
+      CHECKSUM_TYPE.poly_value = parseInt(e.target.value, 16) || 0;
     }
   });
 
-  document.getElementById("crc-init-input").addEventListener("keydown", (e) => {
+  document.getElementById("checksum-init-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      CRC_TYPE.init_value = parseInt(e.target.value, 16) || 0;
+      CHECKSUM_TYPE.init_value = parseInt(e.target.value, 16) || 0;
     }
   });
 }
 
-async function crcRX() {
+async function checksumRX() {
   let result = await Swal.fire({
-    title: "CRC Setup",
-    html: `
-      <div class="ft-wrap" role="table" id="select_crc"></div>
+    title: "Checksum Selection",
+    html: 
+	 `<div class="ft-wrap" role="table" id="select_checksum"></div>
 
       <div class="ft-custom" style="margin-top:12px;text-align:left;">
         <div class="ft-row" style="margin-top:8px;width:48%;float:left">
-			  <div id="crc-poly-toggle"></div>
+			  <div id="checksum-poly-toggle"></div>
 			  <input
-				id="crc-poly-input"
+				id="checksum-poly-input"
 				class="ft-input"
 				style="width:140px"
 				placeholder="poly (hex)"
 				disabled
 			  />
 
-			  <div id="crc-init-toggle"></div>
+			  <div id="checksum-init-toggle"></div>
 			  <input
-				id="crc-init-input"
+				id="checksum-init-input"
 				class="ft-input"
 				style="width:140px"
 				placeholder="init (hex)"
@@ -1785,16 +1782,10 @@ async function crcRX() {
 			  />
 		</div>
         <div class="ft-row" style="margin-top:8px;width:48%;float:right">
-			  <div id="crc-lsb-toggle"></div>
-			  <div id="crc-seed-toggle"></div>
+			  <div id="checksum-seed-toggle"></div>
 		</div>
 		<div style="clear:both"></div>
-      </div>
-
-      <div class="ft-hint" style="margin-top:12px;">
-        Select a CRC type, or enable custom poly / init overrides.
-      </div>
-    `,
+      </div>`,
     showConfirmButton: true,
     allowOutsideClick: true,
     allowEscapeKey: true,
@@ -1809,10 +1800,10 @@ async function crcRX() {
       htmlContainer: "ft-html",
     },
     didOpen: () => {
-      renderCRCDefs();
-      handleCRCDefs();
+      renderChecksumDefs();
+      handleChecksumDefs();
 
-      setupCustomCRCControls();
+      setupCustomChecksumControls();
       Swal.getPopup().focus();
     }
   });
@@ -1821,40 +1812,40 @@ async function crcRX() {
   }
 }
 
-function handleCRCDefs() {
-  const root = document.getElementById("select_crc");
+function handleChecksumDefs() {
+  const root = document.getElementById("select_checksum");
 
   root.addEventListener("click", (e) => {
     const btn = e.target.closest(".ft-btn");
     if (!btn) return;
 
-    const idx = Number(btn.dataset.crc);
+    const idx = Number(btn.dataset.checksum);
     const def = CHECK_DEFS[idx];
 
-    CRC_TYPE.def_no = idx;
+    CHECKSUM_TYPE.def_no = idx;
 
     // Reset custom overrides
-    CRC_TYPE.poly = false;
-    CRC_TYPE.init = false;
-    CRC_TYPE.poly_value = def.poly;
-    CRC_TYPE.init_value = def.init;
+    CHECKSUM_TYPE.poly = false;
+    CHECKSUM_TYPE.init = false;
+    CHECKSUM_TYPE.poly_value = def.poly;
+    CHECKSUM_TYPE.init_value = def.init;
 
     // Update UI
-    setToggle("crc-poly-toggle", false);
-    setToggle("crc-init-toggle", false);
+    setToggle("checksum-poly-toggle", false);
+    setToggle("checksum-init-toggle", false);
 
 	if(idx < 7) {
-		setInput("crc-poly-input", def.poly, true);
-		setInput("crc-init-input", def.init, true);
+		setInput("checksum-poly-input", def.poly, true);
+		setInput("checksum-init-input", def.init, true);
 	} else {
-		setInput("crc-poly-input", -1, true);
-		setInput("crc-init-input", -1, true);		
+		setInput("checksum-poly-input", null, true);
+		setInput("checksum-init-input", null, true);		
 	}
   });
 }
 
-function renderCRCDefs() {
-  const el = document.getElementById("select_crc");
+function renderChecksumDefs() {
+  const el = document.getElementById("select_checksum");
 
   const rows = CHECK_DEFS.map((d, i) => {
 
@@ -1873,7 +1864,7 @@ function renderCRCDefs() {
     }
 
     if (d.xorSeed != null) {
-      metaParts.push(`seed 0x${d.xorSeed.toString(16).toUpperCase()}`);
+      metaParts.push(`seed 0x0${d.xorSeed.toString(16).toUpperCase()}`);
     }
 
     if (d.reflectIn != null) {
@@ -1888,7 +1879,7 @@ function renderCRCDefs() {
 
     return `
       <div class="ft-row" role="row">
-        <button class="ft-btn" type="button" data-crc="${i}">
+        <button class="ft-btn" type="button" data-checksum="${i}">
           ${d.name}
         </button>
 
