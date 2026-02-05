@@ -57,7 +57,7 @@ const CHECKSUM_TYPE = {	// set from popup
 	xorSeed_value:0x00
 }
 	
-const CHECK_DEFS = [
+const CHECKSUM_DEFS = [
 
   // ===== CRC-8 =====
   {
@@ -1820,7 +1820,7 @@ function handleChecksumDefs() {
     if (!btn) return;
 
     const idx = Number(btn.dataset.checksum);
-    const def = CHECK_DEFS[idx];
+    const def = CHECKSUM_DEFS[idx];
 
     CHECKSUM_TYPE.def_no = idx;
 
@@ -1847,7 +1847,7 @@ function handleChecksumDefs() {
 function renderChecksumDefs() {
   const el = document.getElementById("select_checksum");
 
-  const rows = CHECK_DEFS.map((d, i) => {
+  const rows = CHECKSUM_DEFS.map((d, i) => {
 
     const metaParts = [];
 
