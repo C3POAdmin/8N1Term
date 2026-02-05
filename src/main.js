@@ -46,17 +46,22 @@ let 	speedArray 		= [];
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
-const CRC_APPLY = {
+const CRC_TYPE = {	// set from popup
 	def_no: 0,
 	poly: false,
-	poly_value:0,
+	poly_value:0x00,
 	init: false,
-	init_value:0
+	init_value:0x00,
+	lsb: true,
+	xorSeed:false,
+	xorSeed_value:0x00
 }
 	
-const CRC_DEFS = [
-  // ---- CRC-8 ----
+const CHECK_DEFS = [
+
+  // ===== CRC-8 =====
   {
+    type: "CRC",
     name: "CRC-8",
     width: 8,
     poly: 0x07,
@@ -66,6 +71,7 @@ const CRC_DEFS = [
     reflectOut: false,
   },
   {
+    type: "CRC",
     name: "CRC-8-MAXIM",
     width: 8,
     poly: 0x31,
@@ -75,8 +81,9 @@ const CRC_DEFS = [
     reflectOut: true,
   },
 
-  // ---- CRC-16 ----
+  // ===== CRC-16 =====
   {
+    type: "CRC",
     name: "CRC-16-Modbus",
     width: 16,
     poly: 0x8005,
@@ -86,6 +93,7 @@ const CRC_DEFS = [
     reflectOut: true,
   },
   {
+    type: "CRC",
     name: "CRC-16-IBM",
     width: 16,
     poly: 0x8005,
@@ -95,6 +103,7 @@ const CRC_DEFS = [
     reflectOut: true,
   },
   {
+    type: "CRC",
     name: "CRC-16-CCITT",
     width: 16,
     poly: 0x1021,
@@ -104,6 +113,7 @@ const CRC_DEFS = [
     reflectOut: false,
   },
   {
+    type: "CRC",
     name: "CRC-16-X25",
     width: 16,
     poly: 0x1021,
@@ -111,6 +121,26 @@ const CRC_DEFS = [
     xorOut: 0xFFFF,
     reflectIn: true,
     reflectOut: true,
+  },
+
+  // ===== XOR =====
+  {
+    type: "XOR",
+    name: "XOR-8",
+    width: 8,
+    xorSeed: 0x00,   // only allowed values: 0x00 or 0xFF
+  },
+
+  // ===== SUM =====
+  {
+    type: "SUM",
+    name: "SUM-8",
+    width: 8,
+  },
+  {
+    type: "SUM",
+    name: "SUM-16",
+    width: 16,
   },
 ];
 
@@ -339,9 +369,6 @@ await connect(true);
 root.hidden = false;
 
 //=================================== helpers ==============================/
-
-function crcRX() {
-}
 
 function applyRX() {
 }
@@ -1139,7 +1166,7 @@ export async function pickBaudRate() {
   return null;
 }
 
-function createToggle({ label = "", initial = false, onChange }) {
+function createToggle({ label = "", initial = false, onChange, text_width }) {
   let state = !!initial;
 
   const wrap = document.createElement("div");
@@ -1148,6 +1175,11 @@ function createToggle({ label = "", initial = false, onChange }) {
   const lbl = document.createElement("span");
   lbl.className = "ft-toggle-label";
   lbl.textContent = label;
+
+  // 👇 apply label width only if provided
+  if (typeof text_width === "number") {
+    lbl.style.width = `${text_width}px`;
+  }
 
   const btn = document.createElement("button");
   btn.className = "ft-toggle" + (state ? " on" : "");
@@ -1164,9 +1196,9 @@ function createToggle({ label = "", initial = false, onChange }) {
     state = !!v;
     btn.classList.toggle("on", state);
     if (fire && typeof onChange === "function") {
-		onChange(label, state);
-	    wrap.blur();
-	}
+      onChange(label, state);
+      wrap.blur();
+    }
   };
 
   btn.addEventListener("click", () => setState(!state));
@@ -1657,7 +1689,10 @@ export async function openPlotterWindow() {
 /******************** CRC *********************/
 function setInput(id, value, disabled) {
   const el = document.getElementById(id);
-  el.value = "0x" + value.toString(16).toUpperCase();
+  if(value == -1)
+	el.value = "";
+  else
+    el.value = "0x" + value.toString(16).toUpperCase();
   el.disabled = disabled;
 }
 
@@ -1669,75 +1704,102 @@ function setToggle(id, state) {
 function setupCustomCRCControls() {
   const polyToggle = createToggle({
     label: "Custom poly",
+	text_width: 80,
     initial: false,
     onChange: (_, state) => {
-      CRC_APPLY.poly = state;
-      setInput("crc-poly-input", CRC_APPLY.poly_value, !state);
+      CRC_TYPE.poly = state;
+      setInput("crc-poly-input", CRC_TYPE.poly_value, !state);
     }
   });
 
   const initToggle = createToggle({
     label: "Custom init",
+	text_width: 80,
     initial: false,
     onChange: (_, state) => {
-      CRC_APPLY.init = state;
-      setInput("crc-init-input", CRC_APPLY.init_value, !state);
+      CRC_TYPE.init = state;
+      setInput("crc-init-input", CRC_TYPE.init_value, !state);
+    }
+  });
+
+  const lsbToggle = createToggle({
+    label: "LSB / MSB",
+	text_width: 80,
+    initial: false,
+    onChange: (_, state) => {
+      CRC_TYPE.lsb = state;
+    }
+  });
+
+  const seedToggle = createToggle({
+    label: "XOR Seed",
+	text_width: 80,
+    initial: false,
+    onChange: (_, state) => {
+      CRC_TYPE.xorSeed = state;
     }
   });
 
   document.getElementById("crc-poly-toggle").appendChild(polyToggle);
   document.getElementById("crc-init-toggle").appendChild(initToggle);
+  document.getElementById("crc-seed-toggle").appendChild(seedToggle);
+  document.getElementById("crc-lsb-toggle").appendChild(lsbToggle);
 
   document.getElementById("crc-poly-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      CRC_APPLY.poly_value = parseInt(e.target.value, 16) || 0;
+      CRC_TYPE.poly_value = parseInt(e.target.value, 16) || 0;
     }
   });
 
   document.getElementById("crc-init-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      CRC_APPLY.init_value = parseInt(e.target.value, 16) || 0;
+      CRC_TYPE.init_value = parseInt(e.target.value, 16) || 0;
     }
   });
 }
 
-async function pickCRC() {
-  await Swal.fire({
+async function crcRX() {
+  let result = await Swal.fire({
     title: "CRC Setup",
     html: `
       <div class="ft-wrap" role="table" id="select_crc"></div>
 
       <div class="ft-custom" style="margin-top:12px;text-align:left;">
-        <div class="ft-row">
-          <div id="crc-poly-toggle"></div>
-          <input
-            id="crc-poly-input"
-            class="ft-input"
-            style="width:140px"
-            placeholder="poly (hex)"
-            disabled
-          />
-        </div>
+        <div class="ft-row" style="margin-top:8px;width:48%;float:left">
+			  <div id="crc-poly-toggle"></div>
+			  <input
+				id="crc-poly-input"
+				class="ft-input"
+				style="width:140px"
+				placeholder="poly (hex)"
+				disabled
+			  />
 
-        <div class="ft-row" style="margin-top:8px;">
-          <div id="crc-init-toggle"></div>
-          <input
-            id="crc-init-input"
-            class="ft-input"
-            style="width:140px"
-            placeholder="init (hex)"
-            disabled
-          />
-        </div>
+			  <div id="crc-init-toggle"></div>
+			  <input
+				id="crc-init-input"
+				class="ft-input"
+				style="width:140px"
+				placeholder="init (hex)"
+				disabled
+			  />
+		</div>
+        <div class="ft-row" style="margin-top:8px;width:48%;float:right">
+			  <div id="crc-lsb-toggle"></div>
+			  <div id="crc-seed-toggle"></div>
+		</div>
+		<div style="clear:both"></div>
       </div>
 
       <div class="ft-hint" style="margin-top:12px;">
         Select a CRC type, or enable custom poly / init overrides.
       </div>
     `,
-    showConfirmButton: false,
-    allowOutsideClick: false,
+    showConfirmButton: true,
+    allowOutsideClick: true,
     allowEscapeKey: true,
+    showCancelButton: true,
+
     background: "#0b1220",
     color: "#e5e7eb",
     width: 720,
@@ -1754,6 +1816,9 @@ async function pickCRC() {
       Swal.getPopup().focus();
     }
   });
+  if(isConfirmed == false) {
+	  
+  }
 }
 
 function handleCRCDefs() {
@@ -1764,35 +1829,62 @@ function handleCRCDefs() {
     if (!btn) return;
 
     const idx = Number(btn.dataset.crc);
-    const def = CRC_DEFS[idx];
+    const def = CHECK_DEFS[idx];
 
-    CRC_APPLY.def_no = idx;
+    CRC_TYPE.def_no = idx;
 
     // Reset custom overrides
-    CRC_APPLY.poly = false;
-    CRC_APPLY.init = false;
-    CRC_APPLY.poly_value = def.poly;
-    CRC_APPLY.init_value = def.init;
+    CRC_TYPE.poly = false;
+    CRC_TYPE.init = false;
+    CRC_TYPE.poly_value = def.poly;
+    CRC_TYPE.init_value = def.init;
 
     // Update UI
     setToggle("crc-poly-toggle", false);
     setToggle("crc-init-toggle", false);
 
-    setInput("crc-poly-input", def.poly, true);
-    setInput("crc-init-input", def.init, true);
+	if(idx < 7) {
+		setInput("crc-poly-input", def.poly, true);
+		setInput("crc-init-input", def.init, true);
+	} else {
+		setInput("crc-poly-input", -1, true);
+		setInput("crc-init-input", -1, true);		
+	}
   });
 }
 
 function renderCRCDefs() {
   const el = document.getElementById("select_crc");
 
-  const rows = CRC_DEFS.map((d, i) => {
-    const meta = [
-      `${d.width}-bit`,
-      `poly 0x${d.poly.toString(16).toUpperCase()}`,
-      `init 0x${d.init.toString(16).toUpperCase()}`,
-      d.reflectIn ? "LSB" : "MSB"
-    ].join(" · ");
+  const rows = CHECK_DEFS.map((d, i) => {
+
+    const metaParts = [];
+
+    if (d.width != null) {
+      metaParts.push(`${d.width}-bit`);
+    }
+
+    if (d.poly != null) {
+      metaParts.push(`poly 0x${d.poly.toString(16).toUpperCase()}`);
+    }
+
+    if (d.init != null) {
+      metaParts.push(`init 0x${d.init.toString(16).toUpperCase()}`);
+    }
+
+    if (d.xorSeed != null) {
+      metaParts.push(`seed 0x${d.xorSeed.toString(16).toUpperCase()}`);
+    }
+
+    if (d.reflectIn != null) {
+      metaParts.push(d.reflectIn ? "LSB" : "MSB");
+    }
+
+    if (d.type === "SUM") {
+      metaParts.push("wrap");
+    }
+
+    const meta = metaParts.join(" · ");
 
     return `
       <div class="ft-row" role="row">
