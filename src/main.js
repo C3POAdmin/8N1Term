@@ -1,9 +1,10 @@
 import './style.css';
-import { CHECKSUM_DEFS, CHECKSUM_TYPE } from './checksum_defs.js'
+import { CHECKSUM_DEFS }   from './checksum_defs.js'
+import { computeChecksum } from './checksum_engine.js'
 
 import Split from "split.js";
 import Swal from 'sweetalert2';
-import { sparkline } from "@fnando/sparkline";
+import { sparkline }     from "@fnando/sparkline";
 
 import { invoke } 		 from '@tauri-apps/api/core';
 import { listen } 		 from '@tauri-apps/api/event';
@@ -52,6 +53,16 @@ let 	speedArray 		= [];
 
 const 	GREEN = '<div class="ft-connect ft-green"></div>';
 const 	RED   = '<div class="ft-connect ft-red"></div>';
+
+const CHECKSUM_TYPE = {
+	def_no: 2,
+	poly: false,
+	init: false,
+	xorSeed: false,
+	poly_value: 0x8005,
+    init_value: 0xFFFF,
+	xorSeed_value: 0x00
+}
 
 const CODE_LANGUAGES = [
   { id: 'c',    label: 'C' },

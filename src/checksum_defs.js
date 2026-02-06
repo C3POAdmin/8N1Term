@@ -1,13 +1,3 @@
-export const CHECKSUM_TYPE = {
-	def_no: 2,
-	poly: false,
-	init: false,
-	xorSeed: false,
-	poly_value: 0x8005,
-    init_value: 0xFFFF,
-	xorSeed_value: 0x00
-}
-
 export const CHECKSUM_DEFS = [
 
   // ===== CRC-8 =====
