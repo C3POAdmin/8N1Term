@@ -46,13 +46,12 @@ let 	speedArray 		= [];
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
-const CHECKSUM_TYPE = {	// set from popup
-	def_no: 0,
+const CHECKSUM_TYPE = {
+	def_no: 2,
 	poly: false,
 	poly_value:0x00,
 	init: false,
 	init_value:0x00,
-	lsb: true,
 	xorSeed:false,
 	xorSeed_value:0x00
 }
@@ -169,7 +168,7 @@ await   		renderApp();
 await   		pickSerialPort(); // sets current_port internally
 current_baud 	= await pickBaudRate();
 await 		    renderSplit();
-
+displayChecksum();
 	
 const l_rx 			= document.querySelector("#l_rx");
 const r_rx 			= document.querySelector("#r_rx");
@@ -492,6 +491,17 @@ root.innerHTML =
 		  <div style="float:left;width:80px;padding-top:2px">
 			SEND
 		  </div>
+  		  <div style="float:left;font-size:10px;margin-bottom:-2px;margin-top:-1px">
+			  <div style="float:left;border-color:cyan;margin-top:1px;" class="bracket-open">
+				&nbsp;
+			  </div>
+			  <div style="float:left;margin-top:5px;" id="checksum-text">
+			  </div>
+			  <div style="float:left;border-color:cyan;margin-top:1px;" class="bracket-close">
+				&nbsp;
+			  </div>  
+		  </div>
+
 		  <div style="float:right;" id="r_tx"></div>
 		  <div style="float:right;margin-right:15px;margin-top:-2px;" id="l_tx"></div>
 		  <div style="clear:both"></div>
@@ -609,13 +619,6 @@ async function reSendBuffer() {
 	} catch(e) {
 		console.log('reSendBuffer()', e);	
 	}
-}
-
-function displayBuffer() {
-	for(let a of last_buffer) {
-		
-	}
-	
 }
 
 async function openPort() {
@@ -1893,3 +1896,8 @@ function renderChecksumDefs() {
   el.innerHTML = rows;
 }
 
+function displayChecksum() {
+	const name = CHECKSUM_DEFS[CHECKSUM_TYPE.def_no].name;
+	const el = document.getElementById("checksum-text");
+	el.textContent = name;
+}
