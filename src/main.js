@@ -50,8 +50,8 @@ const 	SPEED_POINTS 	= 100;
 let 	speedByteAcc 	= 0;
 let 	speedArray 		= [];
 
-const 	GREEN = "\u{1F7E2}";
-const 	RED   = "\u{1F534}";
+const 	GREEN = '<div class="ft-connect ft-green"></div>';
+const 	RED   = '<div class="ft-connect ft-red"></div>';
 
 const CODE_LANGUAGES = [
   { id: 'c',    label: 'C' },

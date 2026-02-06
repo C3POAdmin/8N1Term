@@ -430,7 +430,6 @@ body {
   width: 100%;
 }
 
-/* full-width custom input row */
 .ft-custom {
   margin-top: 12px;
   width:100%;
@@ -489,7 +488,6 @@ body {
   border-color: rgba(148, 163, 184, 1);
 }
 
-/* knob */
 .ft-toggle-knob {
   position: absolute;
   top: 1px;
@@ -501,7 +499,6 @@ body {
   transition: transform 140ms ease;
 }
 
-/* hover polish */
 .ft-toggle:hover {
   filter: brightness(1.1);
 }
@@ -511,24 +508,25 @@ body {
 	margin-left:15px;
 }
 
-/* move knob right */
 .ft-toggle.on .ft-toggle-knob {
   transform: translateX(21px);
-  background: #22c55e;          /* ON = green */
-}
-
-.ft-diconnected {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #a5575b;
-}
-
-.ft-connected {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
   background: #22c55e;
+}
+
+.ft-connect {
+  float:left;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right:5px;
+}
+
+.ft-green {
+  background: #22c55e;
+}
+
+.ft-red {
+  background: #a5575b;
 }
 
 .tx-layout {
