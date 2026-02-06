@@ -27,10 +27,15 @@ let		scroll		 	= true;
 let		texthex 	 	= true;
 let 	hexEl 		 	= null;
 let 	textEl 		 	= null;
+let		polyToggle 		= null;
+let		initToggle 		= null;
+let		seedToggle 		= null;
+
 let 	tx_buffer    	= [];
 let 	last_buffer  	= [];
 let		rx_buffer	 	= [];
 let 	cap_buffer   	= [];
+
 let 	capturing 	 	= false;
 let 	cap_start_time  = null;
 let     cap_timer_id  	= null;
@@ -49,13 +54,13 @@ const 	RED   = "\u{1F534}";
 const CHECKSUM_TYPE = {
 	def_no: 2,
 	poly: false,
-	poly_value:0x00,
 	init: false,
-	init_value:0x00,
-	xorSeed:false,
-	xorSeed_value:0x00
+	xorSeed: false,
+	poly_value: 0x8005,
+    init_value: 0xFFFF,
+	xorSeed_value: 0x00
 }
-	
+
 const CHECKSUM_DEFS = [
 
   // ===== CRC-8 =====
@@ -1175,7 +1180,7 @@ export async function pickBaudRate() {
   return null;
 }
 
-function createToggle({ label = "", initial = false, onChange, text_width }) {
+function createToggle({label = "", initial = false, onChange, text_width}) {
   let state = !!initial;
 
   const wrap = document.createElement("div");
@@ -1698,7 +1703,6 @@ export async function openPlotterWindow() {
 /******************** Checksum *********************/
 function setInput(id, value, disabled) {
   const el = document.getElementById(id);
-  console.log(value);
   if(value == null)
 	el.value = "";
   else
@@ -1712,32 +1716,35 @@ function setToggle(id, state) {
 }
 
 function setupCustomChecksumControls() {
-  const polyToggle = createToggle({
+  polyToggle = createToggle({
     label: "Custom poly",
 	text_width: 80,
     initial: false,
     onChange: (_, state) => {
       CHECKSUM_TYPE.poly = state;
       setInput("checksum-poly-input", CHECKSUM_TYPE.poly_value, !state);
+	  console.log({CHECKSUM_TYPE});
     }
   });
 
-  const initToggle = createToggle({
+  initToggle = createToggle({
     label: "Custom init",
 	text_width: 80,
     initial: false,
     onChange: (_, state) => {
       CHECKSUM_TYPE.init = state;
       setInput("checksum-init-input", CHECKSUM_TYPE.init_value, !state);
+	  console.log({CHECKSUM_TYPE});
     }
   });
 
-  const seedToggle = createToggle({
+  seedToggle = createToggle({
     label: "Seed 0x00 / 0xFF",
 	text_width: 105,
     initial: false,
     onChange: (_, state) => {
       CHECKSUM_TYPE.xorSeed = state;
+	  console.log({CHECKSUM_TYPE});
     }
   });
 
@@ -1748,14 +1755,19 @@ function setupCustomChecksumControls() {
   document.getElementById("checksum-poly-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       CHECKSUM_TYPE.poly_value = parseInt(e.target.value, 16) || 0;
+	  e.target.blur();
+	  console.log({CHECKSUM_TYPE});
     }
   });
 
   document.getElementById("checksum-init-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       CHECKSUM_TYPE.init_value = parseInt(e.target.value, 16) || 0;
+	  e.target.blur();
+	  console.log({CHECKSUM_TYPE});
     }
   });
+  console.log({CHECKSUM_TYPE});
 }
 
 async function checksumRX() {
@@ -1792,7 +1804,7 @@ async function checksumRX() {
     showConfirmButton: true,
     allowOutsideClick: true,
     allowEscapeKey: true,
-    showCancelButton: true,
+    confirmButtonText: "Close",
 
     background: "#0b1220",
     color: "#e5e7eb",
@@ -1805,14 +1817,46 @@ async function checksumRX() {
     didOpen: () => {
       renderChecksumDefs();
       handleChecksumDefs();
-
       setupCustomChecksumControls();
-      Swal.getPopup().focus();
-    }
-  });
-  if(isConfirmed == false) {
+  	  setChecksumSelected();
 	  
-  }
+	  console.log('Checksum default UI',CHECKSUM_TYPE);
+	  if(CHECKSUM_TYPE.poly) {
+		  polyToggle.set(true);
+  		  setInput("checksum-poly-input", CHECKSUM_TYPE.poly_value, false);
+	  } else {
+  		  setInput("checksum-poly-input", CHECKSUM_DEFS[CHECKSUM_TYPE.def_no].poly, true);
+	  }
+	  if(CHECKSUM_TYPE.init) {
+		  initToggle.set(true);
+  		  setInput("checksum-init-input", CHECKSUM_TYPE.init_value, false);
+	  } else {
+  		  setInput("checksum-init-input", CHECKSUM_DEFS[CHECKSUM_TYPE.def_no].init, true);
+	  }
+		  
+	  if(CHECKSUM_TYPE.xorSeed) {
+		  seedToggle.set(true);
+	  } 
+	},
+	willClose: () => {
+		console.log('No Enter on inputbox save');
+		const pinput = document.getElementById("checksum-poly-input");
+		CHECKSUM_TYPE.poly_value = parseInt(pinput.value, 16) || 0;
+		const iinput = document.getElementById("checksum-init-input");
+		CHECKSUM_TYPE.init_value = parseInt(iinput.value, 16) || 0;
+	}
+  });
+}
+
+function setChecksumSelected() {
+	const defNo = CHECKSUM_TYPE.def_no;
+	const ACTIVE_BORDER = "2px solid cyan";
+	const INACTIVE_BORDER = "1px solid rgba(148, 163, 184, 0.14)"
+
+    document.querySelectorAll("[data-checksum-outer]").forEach(el => {
+    const idx = Number(el.dataset.checksumOuter);
+    el.style.border = (idx === defNo) ? ACTIVE_BORDER : INACTIVE_BORDER;
+  });
 }
 
 function handleChecksumDefs() {
@@ -1844,6 +1888,12 @@ function handleChecksumDefs() {
 		setInput("checksum-poly-input", null, true);
 		setInput("checksum-init-input", null, true);		
 	}
+	polyToggle.set(false);
+	initToggle.set(false);
+	seedToggle.set(false);
+	
+	setChecksumSelected();
+	displayChecksum();
   });
 }
 
@@ -1881,7 +1931,7 @@ function renderChecksumDefs() {
     const meta = metaParts.join(" · ");
 
     return `
-      <div class="ft-row" role="row">
+      <div class="ft-row-thick" role="row" data-checksum-outer="${i}">
         <button class="ft-btn" type="button" data-checksum="${i}">
           ${d.name}
         </button>
@@ -1900,4 +1950,5 @@ function displayChecksum() {
 	const name = CHECKSUM_DEFS[CHECKSUM_TYPE.def_no].name;
 	const el = document.getElementById("checksum-text");
 	el.textContent = name;
+	console.log({CHECKSUM_TYPE});
 }
