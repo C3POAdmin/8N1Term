@@ -1799,12 +1799,12 @@ async function checksumRX() {
         <div class="ft-row" style="margin-top:8px;width:48%;float:right">
 			  <div id="checksum-seed-toggle"></div>
 		</div>
-<div class="ft-row" style="margin-top:8px;width:48%;float:right;display:flex;align-items:center;gap:8px">
-  <button class="ft-btn ft-small" style="width:95px" id="get-the-code" type="button">
-    Get the code
-  </button>
-  <div class="ft-sub">In your preferred language</div>
-</div>
+		<div class="ft-row" style="margin-top:8px;width:48%;float:right;display:flex;align-items:center;gap:8px">
+		  <button class="ft-btn ft-small" style="width:95px;margin-left:13px" id="get-the-code" type="button">
+			Get the code
+		  </button>
+		  <div class="ft-sub">In your preferred language</div>
+		</div>
 		<div style="clear:both"></div>
       </div>`,
     showConfirmButton: true,
