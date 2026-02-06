@@ -239,7 +239,9 @@ await listen('serial_rx', (event) => {
 	}
 
 	if (emit) {
+		console.log(rawSeriesData);
 		seriesData = rawSeriesData.filter(p => p.y >= min && p.y <= max)
+		console.log(seriesData);
 		plotter.updateSeries([{ data: seriesData }], false)
 
 		if(rawSeriesData.length >= MAX_POINTS) {

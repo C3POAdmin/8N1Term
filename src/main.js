@@ -1799,6 +1799,12 @@ async function checksumRX() {
         <div class="ft-row" style="margin-top:8px;width:48%;float:right">
 			  <div id="checksum-seed-toggle"></div>
 		</div>
+<div class="ft-row" style="margin-top:8px;width:48%;float:right;display:flex;align-items:center;gap:8px">
+  <button class="ft-btn ft-small" style="width:95px" id="get-the-code" type="button">
+    Get the code
+  </button>
+  <div class="ft-sub">In your preferred language</div>
+</div>
 		<div style="clear:both"></div>
       </div>`,
     showConfirmButton: true,
@@ -1851,7 +1857,7 @@ async function checksumRX() {
 function setChecksumSelected() {
 	const defNo = CHECKSUM_TYPE.def_no;
 	const ACTIVE_BORDER = "2px solid cyan";
-	const INACTIVE_BORDER = "1px solid rgba(148, 163, 184, 0.14)"
+	const INACTIVE_BORDER = "2px solid rgba(148, 163, 184, 0.14)"
 
     document.querySelectorAll("[data-checksum-outer]").forEach(el => {
     const idx = Number(el.dataset.checksumOuter);
@@ -1931,7 +1937,7 @@ function renderChecksumDefs() {
     const meta = metaParts.join(" · ");
 
     return `
-      <div class="ft-row-thick" role="row" data-checksum-outer="${i}">
+      <div class="ft-row" role="row" data-checksum-outer="${i}">
         <button class="ft-btn" type="button" data-checksum="${i}">
           ${d.name}
         </button>
