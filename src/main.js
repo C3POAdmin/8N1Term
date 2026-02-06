@@ -51,6 +51,15 @@ let 	speedArray 		= [];
 const 	GREEN = "\u{1F7E2}";
 const 	RED   = "\u{1F534}";
 
+const CODE_LANGUAGES = [
+  { id: 'c',    label: 'C' },
+  { id: 'cpp',  label: 'C++' },
+  { id: 'cs',   label: 'C#' },
+  { id: 'js',   label: 'JavaScript' },
+  { id: 'py',   label: 'Python' },
+  { id: 'rs',   label: 'Rust' },
+];
+
 const CHECKSUM_TYPE = {
 	def_no: 2,
 	poly: false,
@@ -1842,7 +1851,14 @@ async function checksumRX() {
 		  
 	  if(CHECKSUM_TYPE.xorSeed) {
 		  seedToggle.set(true);
-	  } 
+	  }
+	  
+	  const getCode = document.getElementById("get-the-code");
+	  getCode.addEventListener("click", async (e) => {
+		    await Swal.close();
+			await chooseCodeLanguage();  
+	  });
+	  
 	},
 	willClose: () => {
 		console.log('No Enter on inputbox save');
@@ -1957,4 +1973,62 @@ function displayChecksum() {
 	const el = document.getElementById("checksum-text");
 	el.textContent = name;
 	console.log({CHECKSUM_TYPE});
+}
+
+async function chooseCodeLanguage() {
+  let selectedIndex = 0;
+
+ const html = `
+  <div style="
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px 16px;
+    align-items:flex-start;
+  ">
+    ${CODE_LANGUAGES.map((l, i) => `
+      <button
+        class="ft-btn ft-small generate-language"
+        data-index="${i}"
+        style="width:120px;text-align:left"
+      >
+        ${l.label}
+      </button>
+    `).join('')}
+	  </div>
+	`;
+
+
+  const result = await Swal.fire({
+    title: 'Generate code',
+    html,
+	showConfirmButton: false,
+    showCancelButton: true,
+	background: "#0b1220",
+	color: "#e5e7eb",
+	width: 460,
+	customClass: {
+		popup: "ft-swal",
+		title: "ft-title",
+		htmlContainer: "ft-html",
+		cancelButton: "ft-cancel",
+	},
+    didOpen: () => {
+      const buttons = Swal.getPopup().querySelectorAll('.generate-language');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('on'));
+          btn.classList.add('on');
+          selectedIndex = Number(btn.dataset.index);
+        });
+      });
+
+      // preselect first
+      buttons[0]?.classList.add('on');
+    }
+  });
+
+  if (!result.isConfirmed) return null;
+
+  return selectedIndex;
 }
