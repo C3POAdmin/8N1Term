@@ -489,7 +489,6 @@ body {
   border-color: rgba(148, 163, 184, 1);
 }
 
-
 /* knob */
 .ft-toggle-knob {
   position: absolute;
@@ -516,6 +515,20 @@ body {
 .ft-toggle.on .ft-toggle-knob {
   transform: translateX(21px);
   background: #22c55e;          /* ON = green */
+}
+
+.ft-diconnected {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #a5575b;
+}
+
+.ft-connected {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #22c55e;
 }
 
 .tx-layout {

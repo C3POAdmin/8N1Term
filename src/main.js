@@ -1,4 +1,6 @@
 import './style.css';
+import { CHECKSUM_DEFS, CHECKSUM_TYPE } from './checksum_defs.js'
+
 import Split from "split.js";
 import Swal from 'sweetalert2';
 import { sparkline } from "@fnando/sparkline";
@@ -58,109 +60,6 @@ const CODE_LANGUAGES = [
   { id: 'js',   label: 'JavaScript' },
   { id: 'py',   label: 'Python' },
   { id: 'rs',   label: 'Rust' },
-];
-
-const CHECKSUM_TYPE = {
-	def_no: 2,
-	poly: false,
-	init: false,
-	xorSeed: false,
-	poly_value: 0x8005,
-    init_value: 0xFFFF,
-	xorSeed_value: 0x00
-}
-
-const CHECKSUM_DEFS = [
-
-  // ===== CRC-8 =====
-  {
-    type: "CRC",
-    name: "CRC-8",
-    width: 8,
-    poly: 0x07,
-    init: 0x00,
-    xorOut: 0x00,
-    reflectIn: false,
-    reflectOut: false,
-  },
-  {
-    type: "CRC",
-    name: "CRC-8-MAXIM",
-    width: 8,
-    poly: 0x31,
-    init: 0x00,
-    xorOut: 0x00,
-    reflectIn: true,
-    reflectOut: true,
-  },
-
-  // ===== CRC-16 =====
-  {
-    type: "CRC",
-    name: "CRC-16-MODBUS",
-    width: 16,
-    poly: 0x8005,
-    init: 0xFFFF,
-    xorOut: 0x0000,
-    reflectIn: true,
-    reflectOut: true,
-  },
-  {
-    type: "CRC",
-    name: "CRC-16-IBM",
-    width: 16,
-    poly: 0x8005,
-    init: 0x0000,
-    xorOut: 0x0000,
-    reflectIn: true,
-    reflectOut: true,
-  },
-  {
-    type: "CRC",
-    name: "CRC-16-CCITT",
-    width: 16,
-    poly: 0x1021,
-    init: 0xFFFF,
-    xorOut: 0x0000,
-    reflectIn: false,
-    reflectOut: false,
-  },
-  {
-    type: "CRC",
-    name: "CRC-16-X25",
-    width: 16,
-    poly: 0x1021,
-    init: 0xFFFF,
-    xorOut: 0xFFFF,
-    reflectIn: true,
-    reflectOut: true,
-  },
-
-  // ===== XOR =====
-  {
-    type: "XOR",
-    name: "XOR-8",
-    width: 8,
-    xorSeed: 0x00,   // only allowed values: 0x00 or 0xFF
-    poly: null,
-    init: null,
-  },
-
-  // ===== SUM =====
-  {
-    type: "SUM",
-    name: "SUM-8",
-    width: 8,
-    poly: null,
-    init: null,
-  },
-  {
-    type: "SUM",
-    name: "SUM-16",
-    width: 16,
-    poly: null,
-    init: null,
-  },
 ];
 
 const ASCII_CTRL = [
@@ -1976,7 +1875,7 @@ function displayChecksum() {
 }
 
 async function chooseCodeLanguage() {
-  let selectedIndex = 0;
+  let idx = 0;
 
  const html = `
   <div style="
@@ -1997,7 +1896,6 @@ async function chooseCodeLanguage() {
 	  </div>
 	`;
 
-
   const result = await Swal.fire({
     title: 'Generate code',
     html,
@@ -2017,18 +1915,11 @@ async function chooseCodeLanguage() {
 
       buttons.forEach(btn => {
         btn.addEventListener('click', () => {
-          buttons.forEach(b => b.classList.remove('on'));
-          btn.classList.add('on');
-          selectedIndex = Number(btn.dataset.index);
+          idx = Number(btn.dataset.index);
+		  console.log(idx);
+		  Swal.close();
         });
       });
-
-      // preselect first
-      buttons[0]?.classList.add('on');
     }
   });
-
-  if (!result.isConfirmed) return null;
-
-  return selectedIndex;
 }
