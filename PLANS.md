@@ -5,37 +5,10 @@ It is not a schedule or a commitment — priorities may change based on real-wor
 
 ---
 
-## Additional Plotting style for long term data recording
-
-### Time-Based — Long-term value sampling (Proposed)
-*(Sparse, event-driven measurements over real time)*
-Value
-│
-│        │
-│        │
-│   │    │
-│   │    │
-│   │    │
-└───┼────┼────────────── Time
-    t1   t2            t3
-
-
-### Value-Based — Quick per-value sampling (Completed)
-*(Continuous or high-frequency measurements)*
-
-Value
-│        ●───●───●───●
-│      ●
-│    ●
-│  ●
-└──────────────────── Time
-
----
-
-
-### Filter by Min and Max (Avoid Phone number or other large non metric values)
-Add numeric view-range filters (AUTO, 16-bit, 24-bit, 32-bit, 64-bit) to the graph for rapid sanity-checking of incoming data.
-
+## Data Plotter
+Add 10k reading buffer.
+Work out best case number of points per screen.
+Add prev next button, or fake/linked scrollbar.
 ---
 
 ## Protocol-aware helpers (e.g. MODBUS)
@@ -63,37 +36,6 @@ This is intended as *assistance*, not a full protocol analyzer.
 - Clear demand for specific protocols
 - Agreement on minimal decode depth (avoid scope creep)
 - Defined behaviour when frames are malformed or partial
-
----
-
-## CRC calculation helper
-
-Add a **CRC helper button** to assist with constructing outbound frames.
-
-### Intended behaviour
-- User selects a CRC type
-- CRC is calculated over the current TX buffer
-- Result is automatically **inserted into the transmit buffer**
-- Supports both hex and binary contexts
-
-### Initial CRC types to support
-- CRC-8
-- CRC-16 (IBM / MODBUS)
-- CRC-16-CCITT
-- CRC-32 (common variants)
-
-### Design constraints
-- Explicit user action (no hidden auto-modification)
-- Clear visibility of:
-  - polynomial
-  - initial value
-  - endianness
-- Must work cleanly with binary TX buffers
-
-### Open questions
-- UI placement (toolbar vs TX panel)
-- Append vs insert-at-cursor behaviour
-- Preset vs fully configurable CRC parameters
 
 ---
 
