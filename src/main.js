@@ -223,17 +223,17 @@ document.getElementById("clear_tx").addEventListener("click", clearTX);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-top:-2px;margin-right:10px;" class="ft-btn ft-small ft-right-btn" id="apply_rx">Apply</button>'
+  '<button style="float:right;margin-top:-2px;margin-right:10px;" class="ft-btn ft-small ft-right-btn" id="apply_tx">Apply</button>'
 );
-const el_apply = document.getElementById("apply_rx")
-el_apply.addEventListener("click", applyRX);
+const el_apply = document.getElementById("apply_tx")
+el_apply.addEventListener("click", applyTX);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-top:-2px;" class="ft-btn ft-small ft-left-btn" id="checksum_rx">Checksum</button>'
+  '<button style="float:right;margin-top:-2px;" class="ft-btn ft-small ft-left-btn" id="checksum_tx">Checksum</button>'
 );
-const el_checksum = document.getElementById("checksum_rx")
-el_checksum.addEventListener("click", checksumRX);
+const el_checksum = document.getElementById("checksum_tx")
+el_checksum.addEventListener("click", checksumTX);
 
 const tog_echo = createToggle({
   label: "Echo",
@@ -299,9 +299,10 @@ root.hidden = false;
 
 //=================================== helpers ==============================/
 
-function applyRX() {
+function applyTX() {
+	const cs = computeChecksum(tx_buffer,CHECKSUM_TYPE)
+	console.log('Checksum result',cs);
 }
-
 
 function clearRX() {
 	el_rx.innerHTML = '';
@@ -718,44 +719,52 @@ function renderRX(values, tx = false) {
 
   for (let i = 0; i < values.length; i++) {
     const code = values[i];
-    if (code < 0 || code > 127) continue;
+    if (code < 0 || code > 255) continue;
 
     const hex = code.toString(16).toUpperCase().padStart(2, '0');
 
-    let label;
-    if (code < 32) label = ASCII_CTRL[code];
-    else if (code === 32) label = 'SPACE';
-    else if (code === 127) label = 'DEL';
-    else label = String.fromCharCode(code);
+    let label = '';
+    let isPrintable = false;
+
+    // ---- label resolution (gfx only) ----
+    if (code < 32) {
+      label = ASCII_CTRL[code] ?? '';
+    } else if (code === 32) {
+      label = 'SPACE';
+      isPrintable = true;
+    } else if (code === 127) {
+      label = 'DEL';
+    } else if (code >= 0x20 && code <= 0x7E) {
+      label = String.fromCharCode(code);
+      isPrintable = true;
+    }
+    // 128–255 → intentionally blank label
+    // ------------------------------------
 
     const cell = document.createElement('div');
     cell.className = tx ? 'ascii-tx' : 'ascii-rx';
-	cell.classList.add('border-hide');
-	
-    if (code === 32) {
-      cell.innerHTML = `
-        <span class="ascii-hex">${hex}</span>
-        <span class="ascii-label ascii-small">${label}</span>
-      `;
-    } else {
-      cell.innerHTML = `
-        <span class="ascii-hex">${hex}</span>
-        <span class="ascii-label">${label}</span>
-      `;
-    }
+    cell.classList.add('border-hide');
 
-	if (code === 13 || code === 10 || code === 32) 
-		cell.classList.add('ascii-hide');
+    cell.innerHTML = `
+      <span class="ascii-hex">${hex}</span>
+      <span class="ascii-label${!isPrintable ? ' ascii-raw' : ''}">
+        ${label}
+      </span>
+    `;
+
+    // Hide layout-only bytes
+    if (code === 13 || code === 10 || code === 32) {
+      cell.classList.add('ascii-hide');
+    }
 
     frag.appendChild(cell);
 
     // ---- newline handling (NO swallowing) ----
-    if (code === 13) { // CR
-      // CRLF → single break after LF
+    if (code === 13) {            // CR
       if (values[i + 1] !== 10) {
         frag.appendChild(makeAsciiBreak());
       }
-    } else if (code === 10) { // LF
+    } else if (code === 10) {     // LF
       frag.appendChild(makeAsciiBreak());
     }
     // -----------------------------------------
@@ -764,12 +773,12 @@ function renderRX(values, tx = false) {
   return frag;
 }
 
+
 function makeAsciiBreak() {
   const br = document.createElement('div');
   br.className = 'ascii-break';
   return br;
 }
-
 
 function drawAsciiKeyboard(containerId, onKey) {
   const container = document.getElementById(containerId);
@@ -777,20 +786,27 @@ function drawAsciiKeyboard(containerId, onKey) {
 
   const frag = document.createDocumentFragment();
 
-  for (let i = 0; i < 128; i++) {
+  for (let i = 0; i <= 255; i++) {
     const btn = document.createElement('button');
     btn.className = 'ascii-key';
 
     const hex = i.toString(16).toUpperCase().padStart(2, '0');
     const dec = i.toString(10);
 
-    let label;
-    if (i < 32) label = ASCII_CTRL[i];
-    else if (i === 32) label = 'SPACE';
-    else if (i === 127) label = 'DEL';
-    else label = String.fromCharCode(i);
+    let label = '';
 
-    btn.dataset.ascii = label;
+    if (i < 32) {
+      label = ASCII_CTRL[i] ?? '';
+    } else if (i === 32) {
+      label = 'SPACE';
+    } else if (i === 127) {
+      label = 'DEL';
+    } else if (i < 128) {
+      label = String.fromCharCode(i);
+    }
+    // i >= 128 → intentionally blank (raw byte)
+
+    btn.dataset.byte = i;
     btn.dataset.hex = hex;
     btn.dataset.dec = dec;
 
@@ -824,8 +840,9 @@ function toHex2(n) {
 
 function asciiDisplayName(code) {
   if (code < 32) return `[${ASCII_CTRL[code]}]`;
-//  if (code === 32) return '[SPACE]';
+
   if (code === 127) return '[DEL]';
+  if (code > 127) return `[${toHex2(code)}]`;
   return String.fromCharCode(code);
 }
 
@@ -1689,7 +1706,7 @@ function setupCustomChecksumControls() {
   console.log({CHECKSUM_TYPE});
 }
 
-async function checksumRX() {
+async function checksumTX() {
   let result = await Swal.fire({
     title: "Checksum Selection",
     html: 
