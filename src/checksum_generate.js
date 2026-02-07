@@ -55,9 +55,7 @@ static uint16_t reflect16(uint16_t x)
     return r;
 }
 	
-uint16_t crc_${def.name.replace(/[^A-Z0-9]/gi, '_').toLowerCase()}(
-    const uint8_t *data, size_t len
-) {
+uint16_t crc(const uint8_t *data, size_t len) {
     uint16_t crc = 0x${init.toString(16).toUpperCase()};
 
     while (len--) {
