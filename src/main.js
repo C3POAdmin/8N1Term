@@ -1,6 +1,7 @@
 import './style.css';
-import { CHECKSUM_DEFS }   from './checksum_defs.js'
-import { computeChecksum } from './checksum_engine.js'
+import { CHECKSUM_DEFS }   		from './checksum_defs.js'
+import { computeChecksum } 		from './checksum_engine.js'
+import { generateChecksumCode } from './checksum_generate.js'
 
 import Split from "split.js";
 import Swal from 'sweetalert2';
@@ -1783,7 +1784,8 @@ async function checksumTX() {
 	  const getCode = document.getElementById("get-the-code");
 	  getCode.addEventListener("click", async (e) => {
 		    await Swal.close();
-			await chooseCodeLanguage();  
+			await chooseCodeLanguage();
+				
 	  });
 	  
 	},
@@ -1944,8 +1946,10 @@ async function chooseCodeLanguage() {
       buttons.forEach(btn => {
         btn.addEventListener('click', () => {
           idx = Number(btn.dataset.index);
-		  console.log(idx);
 		  Swal.close();
+		  console.log(CODE_LANGUAGES[idx], idx);  
+		  const code = generateChecksumCode(CODE_LANGUAGES[idx].id, CHECKSUM_TYPE);
+		  console.log(code);  
         });
       });
     }
