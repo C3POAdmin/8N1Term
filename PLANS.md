@@ -46,6 +46,39 @@ The terminal itself never switches modes, hides bytes, or assumes project contex
 
 ---
 
+## Concept: Analysis Windows
+
+Introduce **analysis windows** as optional, parallel tools that observe the live data stream without altering the core terminal UI.
+
+Analysis windows are explicitly launched by the user and are clearly scoped as *tools*, not terminal modes.
+
+### Recording Control
+Each analysis window includes its own **Start / Stop Recording** controls:
+
+- **Start** — begin observing and analysing incoming data
+- **Stop** — freeze the current analysis state for inspection
+
+Recording control is local to the analysis window; the primary terminal continues to receive and display data uninterrupted.
+
+### Core Session Details
+To maintain consistency and clarity, all analysis windows share a unified header showing:
+
+- **Start Time** — timestamp when recording began
+- **Duration** — elapsed recording time
+- **Data Rate** — effective processing or observation speed
+- **Recording State** — Start / Stop status
+
+These details provide immediate context without overwhelming the interface.
+
+### Design Principles
+- Analysis windows are **read-only observers**
+- No analysis window may pause, filter, or modify the terminal data stream
+- Windows are optional, disposable, and may be opened or closed at any time
+- The primary terminal surface remains byte-accurate and authoritative
+
+This model allows protocol decoding, checksum analytics, and future tools to evolve independently while preserving the simplicity and integrity of the main terminal.
+
+
 ## Feedback
 
 If you actively use any of the above features (or specific protocols / CRC variants),
