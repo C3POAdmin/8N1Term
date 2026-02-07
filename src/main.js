@@ -748,7 +748,7 @@ function renderRX(values, tx = false) {
 
     cell.innerHTML = `
       <span class="ascii-hex">${hex}</span>
-      <span class="ascii-label${!isPrintable ? ' ascii-raw' : ''}">
+      <span class="ascii-label ${!isPrintable ? 'ascii-raw' : ''} ${code == 32 ? 'ascii-small' : ''}">
         ${label}
       </span>
     `;
