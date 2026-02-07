@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
-use serde::Serialize;
+use std::fs;
+use std::path::PathBuf;
 use std::process::Command;
 use std::io::ErrorKind;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use serde::Serialize;
 use tauri::{Manager, AppHandle, Emitter};
 use tauri_plugin_dialog::DialogExt;
 
@@ -301,6 +303,36 @@ fn save_bytes(app: tauri::AppHandle, filename: String, data: Vec<u8>) -> Result<
     Ok(())
 }
 
+#[tauri::command]
+fn save_code(code: String) -> Result<(), String> {
+    // Choose a temp location + filename
+    let mut path: PathBuf = std::env::temp_dir();
+    path.push("checksum_code.txt");
+
+    // Write file
+    fs::write(&path, code).map_err(|e| e.to_string())?;
+
+    // Open with OS default editor
+    if cfg!(target_os = "windows") {
+        Command::new("cmd")
+            .args(["/C", "start", "", path.to_str().unwrap()])
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    } else if cfg!(target_os = "macos") {
+        Command::new("open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    } else {
+        // Linux / BSD
+        Command::new("xdg-open")
+            .arg(&path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -316,7 +348,8 @@ pub fn run() {
       send_bytes,
       restart_app,
       save_bytes,
-      load_bytes
+      load_bytes,
+	  save_code
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {

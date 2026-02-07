@@ -1944,12 +1944,11 @@ async function chooseCodeLanguage() {
       const buttons = Swal.getPopup().querySelectorAll('.generate-language');
 
       buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           idx = Number(btn.dataset.index);
 		  Swal.close();
-		  console.log(CODE_LANGUAGES[idx], idx);  
 		  const code = generateChecksumCode(CODE_LANGUAGES[idx].id, CHECKSUM_TYPE);
-		  console.log(code);  
+		  await invoke('save_code', { code });
         });
       });
     }
