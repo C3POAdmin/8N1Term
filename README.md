@@ -39,6 +39,7 @@
 
 ### 📤 TX On-screen Options
 
+- **Checksum/Apply** – Supports CRC/SUM/XOR 8 & 16 bit
 - **Echo** – Mirror TX data into RX window
 - **CR & LF** – Auto-append Carriage Return and Line Feed
 - **Clear** – Clear TX buffer
@@ -50,12 +51,12 @@
 
 ### 🧠 ASCII Keyboard & Controls
 
-- **BS / Enter Mode** – Use Backspace & Enter as normal keys or raw control codes
-- **Full ASCII Set** – All characters available as clickable keys
-- **Control & Non-printables** – Send control codes and edge cases instantly
-- **Hybrid Input** – Works alongside normal keyboard typing
-
----
+- **Byte-Accurate Keyboard** — Clickable input for the full 0–255 byte range
+- **ASCII & Control Support** — Printable characters, control codes, and non-printables
+- **BS / Enter Mode** — Use Backspace & Enter as normal keys or raw control bytes
+- **Hybrid Input** — Works alongside normal keyboard typing
+ 
+ ---
 
 ### 🚀 High-Speed Capture (With Low Level Stability)
 
@@ -74,11 +75,49 @@ Opens a separate Plotter window for live graphing of **numeric values automatica
 
 The plotter is format-agnostic — it detects and plots numbers from **mixed or unstructured input** (plain text, debug output, CSV-style data, ints, floats, etc.) without requiring a fixed protocol or special formatting.
 
+Data Filter: Min / Max
+
 Each plotted data point includes:
 - **Extracted numeric value**
 - **Time-of-day timestamp** with millisecond precision (`HH:MM:SS.mmm`)
+- **Date on x axis**
 
 ![Data Plotter](screenshot-Plotter.png)
+
+---
+
+### 📤 Checksum UI
+
+Supports the following checksum algorithms:
+
+- CRC-8  
+- CRC-8-MAXIM  
+- CRC-16-MODBUS  
+- CRC-16-IBM  
+- CRC-16-CCITT  
+- CRC-16-X25  
+- XOR-8  
+- SUM-8  
+- SUM-16  
+
+All CRC variants are parameterised and support:
+- Custom polynomial  
+- Custom initial value  
+- Custom XOR seed (where applicable)
+
+---
+
+### 🧾 Get-the-Code Button
+
+Generates reference-grade checksum code using your **selected or custom parameters** in the following languages:
+
+- C / C++  
+- C#  
+- JavaScript  
+- Python  
+- Rust  
+
+The generated code is saved to a text file and opened using your operating system’s default editor for immediate inspection or copying.
 
 ---
 
