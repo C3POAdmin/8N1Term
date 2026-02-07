@@ -252,7 +252,7 @@ const tog_cr = createToggle({
   initial: CR,
   onChange: (label, state) => {
     console.log(label, state);
-	echo = state;
+	CR = state;
   }
 });
 l_tx.appendChild(tog_cr);
@@ -262,7 +262,7 @@ const tog_lf = createToggle({
   initial: LF,
   onChange: (label, state) => {
     console.log(label, state);
-	echo = state;
+	LF = state;
   }
 });
 l_tx.appendChild(tog_lf);
@@ -301,8 +301,10 @@ root.hidden = false;
 //=================================== helpers ==============================/
 
 function applyTX() {
-	const cs = computeChecksum(tx_buffer,CHECKSUM_TYPE)
-	console.log('Checksum result',cs);
+	const bytes = computeChecksum(tx_buffer,CHECKSUM_TYPE)
+	console.log('[Checksum]', bytes);
+    tx_buffer.push(...bytes);
+	renderTXBytes(bytes);
 }
 
 function clearRX() {
@@ -336,13 +338,13 @@ function dotexthex() {
 
 function doEOL() {
 	document.querySelectorAll('.ascii-break').forEach(el => {
-		el.style.display = EOL ? '' : 'none'
+		el.style.display = EOL ? 'flex' : 'none'
 	});
 }
 
 function doEcho() {
 	document.querySelectorAll('.ascii-tx').forEach(el => {
-		el.style.display = echo ? '' : 'none'
+		el.style.display = echo ? 'flex' : 'none'
 	});
 }
 
@@ -499,15 +501,14 @@ async function sendBuffer() {
 		});
 		last_buffer = copyObj(tx_buffer);
 		let buf = copyObj(tx_buffer);
+		console.log('[CR]',CR,'[LF]',LF);
 		if(CR) {
 			buf.push(13);
-			console.log('CR',CR);
 		} 
 		if(LF) {
 			buf.push(10);
-			console.log('LF',LF);
 		}
-		console.log(buf);
+		console.log('[SEND]',buf);
 		let frag = renderRX(buf, true);
 		el_rx.appendChild(frag);
 		doEcho();
@@ -532,6 +533,7 @@ async function reSendBuffer() {
 		  data: last_buffer
 		});
 		let buf = copyObj(last_buffer);
+		console.log('[CR]',CR,'[LF]',LF);
 		if(CR)
 			buf.push(13);
 		if(LF)
@@ -715,7 +717,7 @@ async function pickSerialPort() {
   });
 }
 
-function renderRX(values, tx = false) {
+function renderRX(values, tx = false, checksum = false) {
   const frag = document.createDocumentFragment();
 
   for (let i = 0; i < values.length; i++) {
@@ -745,6 +747,9 @@ function renderRX(values, tx = false) {
     const cell = document.createElement('div');
     cell.className = tx ? 'ascii-tx' : 'ascii-rx';
     cell.classList.add('border-hide');
+	//if(checksum)
+	//	cell.classList.add('ascii-checksum');
+		
 
     cell.innerHTML = `
       <span class="ascii-hex">${hex}</span>

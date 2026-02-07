@@ -257,6 +257,10 @@ body {
   overflow: hidden;
 }
 
+.ascii-checksum {
+	border-color:cyan !important;
+}
+
 .ascii-key {
   position: relative;
   width:50px;
