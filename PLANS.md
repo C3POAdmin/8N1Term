@@ -3,9 +3,22 @@
 This document outlines features and improvements I intend to work on next or in the medium term.
 It is not a schedule or a commitment — priorities may change based on real-world use and feedback.
 
+
 ---
 
-## Data Plotter
+## TX History
+
+Button clickable, auto loads into the TX buffer, makes resend (and send) button more effective.
+
+---
+
+## State memory
+
+A JSON file, easily editable, remembers TX history, Checksum and custom Checksum state.
+
+---
+
+## Data Plotter (additional features)
 
 Add 10k reading buffer
 Work out best case number of points per screen
@@ -13,31 +26,23 @@ Add prev next button, or fake/linked scrollbar
 
 ---
 
-## Protocol-aware helpers (e.g. MODBUS)
+## Protocol-aware helpers (e.g. Modbus RTU)
 
-Explore adding **protocol-aware helpers** for common industrial / embedded protocols, starting with MODBUS-style framing.
+Explore **protocol-aware helpers** that *annotate* raw serial data without altering or replacing the core hex / ASCII terminal view.
 
-This is intended as *assistance*, not a full protocol analyzer.
+Initial focus: **Modbus RTU**.
 
-### Possible scope
-- Frame boundary awareness
-- Basic decode helpers for well-known fields
-- Optional human-readable annotations alongside raw data
+- The primary terminal surface remains **byte-accurate and authoritative**
+- When enabled, frames that parse cleanly as Modbus RTU are indicated by a **subtle visual marker** (e.g. a faint blue line beneath the packet)
+- Hover or click provides **protocol-level annotation** (address, function code name, fields, CRC validity), without implying device semantics or behaviour
 
-### Initial protocol candidates
-- MODBUS RTU
-- MODBUS ASCII
-- (Others based on real demand)
+For deeper inspection, allow opening a **separate analysis window** (similar to the data plotter):
 
-### Design constraints
-- No hard dependency on protocol mode
-- Raw bytes must always remain visible
-- Prefer **modular / helper-style** implementation rather than hard-coded logic
+- Displays Modbus packets alongside their protocol-defined field meanings
+- Clearly scoped as an **analysis tool**, not a terminal mode
+- Optional, parallel, and fully disposable
 
-### Requirements before implementation
-- Clear demand for specific protocols
-- Agreement on minimal decode depth (avoid scope creep)
-- Defined behaviour when frames are malformed or partial
+The terminal itself never switches modes, hides bytes, or assumes project context — protocol helpers are **assistive overlays**, not transformations.
 
 ---
 
