@@ -7,9 +7,10 @@ It is not a schedule or a commitment — priorities may change based on real-wor
 
 ## Data Plotter
 
-Add 10k reading buffer.
-Work out best case number of points per screen.
-Add prev next button, or fake/linked scrollbar.
+Add 10k reading buffer
+Work out best case number of points per screen
+Add prev next button, or fake/linked scrollbar
+
 ---
 
 ## Protocol-aware helpers (e.g. MODBUS)
