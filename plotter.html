@@ -144,13 +144,34 @@ const options = {
 		const val  = series[seriesIndex][dataPointIndex]
 
 		return `
-		  <div style="padding:6px 8px;">
-			<div>${time}</div>
-			<div>${val}</div>
+		  <div style="
+			padding:6px 8px;
+			border:1px solid rgba(180,220,255,0.35);
+			border-radius:4px;
+			background:#111;
+		  ">
+			<div style="
+			  font-size:12px;
+			  color:#9fd3ff;
+			  margin-bottom:4px;
+			  padding-bottom:3px;
+			  border-bottom:1px solid rgba(180,220,255,0.25);
+			  white-space:nowrap;
+			">
+			  ${time}
+			</div>
+			<div style="
+			  font-size:13px;
+			  color:#e6f1ff;
+			  white-space:nowrap;
+			">
+			  <span style="opacity:0.7;">Value:</span> ${val}
+			</div>
 		  </div>
 		`
 	  }
 	},
+
 
 	series: [{
 	  name: 'Value',
