@@ -225,13 +225,13 @@ r_tx.insertAdjacentHTML(
 );
 document.getElementById("clear_tx").addEventListener("click", clearTX);
 
-/*
+
 r_tx.insertAdjacentHTML(
   'beforeend',
   '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="history_tx">History</button>'
 );
 document.getElementById("history_tx").addEventListener("click", historyTX);
-*/
+
 r_tx.insertAdjacentHTML(
   'beforeend',
   '<button style="float:right;margin-top:-2px;margin-right:10px;" class="ft-btn ft-small ft-right-btn" id="apply_tx">Apply</button>'
@@ -497,40 +497,41 @@ async function restartApp() {
 		invoke('restart_app');
 	},100);
 }
-	
-async function sendBuffer() {
-	console.log('sendBuffer()', tx_buffer);
-	if(tx_buffer.length === 0) {
-		console.log('Buffer empty');
-	}
-
+async function sendBytes(bytes) {
 	try {
-		if(CR) {
-			tx_buffer.push(13);
-		} 
-		if(LF) {
-			tx_buffer.push(10);
-		}
-
 		await invoke('send_bytes', {
 		  path: current_port,
-		  data: tx_buffer
+		  data: bytes
 		});
-		
-		last_buffer = copyObj(tx_buffer);
-		console.log('[SEND]',tx_buffer);
-		
-		let frag = renderRX(tx_buffer, true);
+
+		let frag = renderRX(bytes, true);
 		el_rx.appendChild(frag);
 		doEcho();
 		doEOL();
 		dotexthex();
 		doScroll();
-		clearTX();
-		addToHistory(tx_buffer);
 	} catch(e) {
-		console.log('sendBuffer()', e);	
+		console.log('sendBytes() Error', e);	
 	}
+}
+	
+async function sendBuffer() {
+	console.log('sendBuffer()', tx_buffer);
+	if(tx_buffer.length === 0) {
+		console.log('Buffer empty');
+		return;
+	}
+
+	if(CR) {
+		tx_buffer.push(13);
+	} 
+	if(LF) {
+		tx_buffer.push(10);
+	}
+
+	sendBytes(tx_buffer);
+	clearTX();
+	addToHistory(tx_buffer);
 }
 
 async function reSendBuffer() {
@@ -539,23 +540,7 @@ async function reSendBuffer() {
 		console.log('Last buffer empty');
 		return;
 	}
-
-	try {
-		await invoke('send_bytes', {
-		  path: current_port,
-		  data: last_buffer
-		});
-
-		let frag = renderRX(last_buffer, true);
-		el_rx.appendChild(frag);
-		doEcho();
-		doEOL();
-		dotexthex();
-		doScroll();
-		addToHistory(last_buffer);
-	} catch(e) {
-		console.log('reSendBuffer()', e);	
-	}
+	sendBytes(last_buffer);
 }
 
 async function openPort() {
@@ -1999,4 +1984,8 @@ async function historyTX() {
       handleHistory();
 	}
   });
+}
+
+function handleHistory() {
+	
 }
