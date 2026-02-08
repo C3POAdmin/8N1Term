@@ -1,3 +1,9 @@
+// NOTE:
+// state.value is intentional.
+// Wrapping primitives in a state object allows components to mutate shared truth
+// without relying on closures, globals, or callback chains.
+// This keeps reads simple (if (state.value)) and makes state inspectable/debuggable.
+
 export function addButton(parent, {
   label,
   onClick,
@@ -14,13 +20,29 @@ export function addButton(parent, {
   return btn;
 }
 
+/**************** USAGE ***********************
+const AUTO_SEND = { value: false }; // because objects are pointers and primiteves (bools) will copy and not change within the function.
+
+addToggle(panel, {
+  label: "Auto send",
+  state: AUTO_SEND
+});
+
+if (AUTO_SEND.value) {
+  sendFrame();
+}
+**************************/
+
+
 export function addToggle(parent, {
   label = "",
-  initial = false,
+  state,              // { value: boolean }
   onChange,
   text_width
 }) {
-  let state = !!initial;
+  if (!state || typeof state.value !== "boolean") {
+    throw new Error("addToggle requires state: { value: boolean }");
+  }
 
   const wrap = document.createElement("div");
   wrap.className = "ft-toggle-wrap";
@@ -34,7 +56,7 @@ export function addToggle(parent, {
   }
 
   const btn = document.createElement("button");
-  btn.className = "ft-toggle" + (state ? " on" : "");
+  btn.className = "ft-toggle" + (state.value ? " on" : "");
   btn.type = "button";
 
   const knob = document.createElement("div");
@@ -44,19 +66,25 @@ export function addToggle(parent, {
   wrap.appendChild(lbl);
   wrap.appendChild(btn);
 
-  const setState = (v, fire = true) => {
-    state = !!v;
-    btn.classList.toggle("on", state);
+  const apply = (fire = true) => {
+    btn.classList.toggle("on", state.value);
     if (fire && typeof onChange === "function") {
-      onChange(label, state);
+      onChange(label, state.value);
     }
   };
 
-  btn.addEventListener("click", () => setState(!state));
+  btn.addEventListener("click", () => {
+    state.value = !state.value;
+    apply(true);
+  });
 
   // minimal, explicit API
-  wrap.set = (v) => setState(v, false);
-  wrap.get = () => state;
+  wrap.set = (v) => {
+    state.value = !!v;
+    apply(false);
+  };
+
+  wrap.get = () => state.value;
 
   parent.appendChild(wrap);
   return wrap;
