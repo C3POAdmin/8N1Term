@@ -20,6 +20,8 @@ let 	lastLatched  	= null;
 let 	latchTimer 	 	= 0;
 let     opened		 	= false;
 let		fail_msg	 	= null;
+
+/**** Global states *****/
 let 	bs_enter 	 	= false;
 let		auto_connect 	= true;
 let		auto_reconnect  = true;
@@ -29,8 +31,11 @@ let		CR 		 	 	= true;
 let		LF 		 	 	= true;
 let		scroll		 	= true;
 let		texthex 	 	= true;
+let		auto_history	= true;
+
 let 	hexEl 		 	= null;
 let 	textEl 		 	= null;
+
 let		polyToggle 		= null;
 let		initToggle 		= null;
 let		seedToggle 		= null;
@@ -522,6 +527,8 @@ async function sendBuffer() {
 		return;
 	}
 
+	addToHistory(tx_buffer);
+
 	if(CR) {
 		tx_buffer.push(13);
 	} 
@@ -531,7 +538,6 @@ async function sendBuffer() {
 
 	sendBytes(tx_buffer);
 	clearTX();
-	addToHistory(tx_buffer);
 }
 
 async function reSendBuffer() {
@@ -1955,17 +1961,19 @@ async function chooseCodeLanguage() {
 }
 
 function addToHistory(bytes) {
-	historyArray.push(...bytes);
+	historyArray.push([...bytes]);
 	if(historyArray.length > HISTORY_LENGTH)
 		historyArray.shift();
+	console.log(historyArray);
 }
 
 async function historyTX() {
   let result = await Swal.fire({
     title: "History",
-    html: 
-	 `<div class="ft-wrap" role="table" id="select_history"></div>
-	  <div class="ft-hint" style="margin-left:7px;float:left;">Click on a row.</div>`,
+    html:` 
+	  <div class="ft-wrap" style="padding-bottom:2px" role="table" id="select_history"></div>
+	  <div style="margin-top:5px;margin-left:-10px" id="auto-send-outer"></div>
+	`,
     showConfirmButton: true,
     allowOutsideClick: true,
     allowEscapeKey: true,
@@ -1973,19 +1981,96 @@ async function historyTX() {
 
     background: "#0b1220",
     color: "#e5e7eb",
-    width: 720,
+    width: 730,
     customClass: {
       popup: "ft-swal",
       title: "ft-title",
       htmlContainer: "ft-html",
     },
     didOpen: () => {
-      renderHistory();
-      handleHistory();
+		const el = document.querySelector("#auto-send-outer");
+		const tog_auto_history = createToggle({
+		  label: "Auto Send",
+		  initial: auto_history,
+		  onChange: (label, state) => {
+			console.log(label, state);
+			auto_history = state;
+		  }
+		});
+		el.appendChild(tog_auto_history);
+
+		renderHistory();
+		handleHistory();
 	}
   });
 }
 
+function renderHistory() {
+  const el = document.querySelector("#select_history");
+  el.innerHTML = ""; // clear previous content
+
+  const df = document.createDocumentFragment();
+  let hasHistory = false;
+
+  for (let i = 0; i < historyArray.length; i++) {
+    const h = historyArray[i];
+    if (!h || h.length === 0) continue;
+
+    hasHistory = true;
+
+    const btn = document.createElement("button");
+    btn.classList.add("ft-btn", "ft-btn-column");
+    btn.type = "button";
+    btn.dataset.history = i;
+
+    const frag = renderRX(h, true);
+    btn.appendChild(frag);
+
+    df.appendChild(btn);
+  }
+
+  if (!hasHistory) {
+    const hint = document.createElement("div");
+    hint.className = "ft-hint";
+    hint.textContent = "No history yet";
+
+	hint.style.textAlign = "center";
+	hint.style.width = "98%";
+	hint.style.padding = "10px 0";
+    el.appendChild(hint);
+    return;
+  }
+
+  el.appendChild(df);
+}
+
 function handleHistory() {
-	
+  const root = document.getElementById("select_history");
+
+  root.addEventListener("click", (e) => {
+    const btn = e.target.closest(".ft-btn");
+    if (!btn) return;
+
+    const idx = Number(btn.dataset.history);
+	console.log('History click',historyArray[idx]);
+	if(!historyArray[idx])
+		return;
+
+	tx_buffer = historyArray[idx].slice(); // shallow copy
+
+	if(auto_history == false) {
+		renderTXBytes(tx_buffer);
+		return;
+	} 
+
+	if(CR) {
+		tx_buffer.push(13);
+	} 
+	if(LF) {
+		tx_buffer.push(10);
+	}
+
+	sendBytes(tx_buffer);
+	clearTX();
+  });
 }

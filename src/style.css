@@ -64,6 +64,15 @@ body {
   background: rgba(15, 23, 42, 0.55);
 }
 
+.ft-btn-column {
+	padding:2px !important;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 30px);
+    gap: 2px;
+    overflow-x: clip;	
+}
+
 .ft-btn {
   appearance: none;
   border: 2px solid rgba(148, 163, 184, 0.80);
