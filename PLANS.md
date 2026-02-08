@@ -3,13 +3,6 @@
 This document outlines features and improvements I intend to work on next or in the medium term.
 It is not a schedule or a commitment — priorities may change based on real-world use and feedback.
 
-
----
-
-## TX History
-
-Button clickable, auto loads into the TX buffer, makes resend (and send) button more effective.
-
 ---
 
 ## State memory
