@@ -52,6 +52,9 @@ const 	SPEED_POINTS 	= 100;
 let 	speedByteAcc 	= 0;
 let 	speedArray 		= [];
 
+let		HISTORY_LENGTH	= 100;
+let		historyArray	= [];
+
 const 	GREEN = '<div class="ft-connect ft-green"></div>';
 const 	RED   = '<div class="ft-connect ft-red"></div>';
 
@@ -214,7 +217,7 @@ r_tx.insertAdjacentHTML(
   'beforeend',
   '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="paste">Paste</button>'
 );
-document.getElementById("paste").addEventListener("click", paste);
+document.getElementById("paste").addEventListener("click", pasteTX);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
@@ -222,6 +225,13 @@ r_tx.insertAdjacentHTML(
 );
 document.getElementById("clear_tx").addEventListener("click", clearTX);
 
+/*
+r_tx.insertAdjacentHTML(
+  'beforeend',
+  '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="history_tx">History</button>'
+);
+document.getElementById("history_tx").addEventListener("click", historyTX);
+*/
 r_tx.insertAdjacentHTML(
   'beforeend',
   '<button style="float:right;margin-top:-2px;margin-right:10px;" class="ft-btn ft-small ft-right-btn" id="apply_tx">Apply</button>'
@@ -368,7 +378,7 @@ function renderTXBytes(bytes) {
 	});
 }
 
-async function paste() {
+async function pasteTX() {
 	const text = await pasteFromClipboard();
 	if (!text) return;
 
@@ -495,27 +505,29 @@ async function sendBuffer() {
 	}
 
 	try {
+		if(CR) {
+			tx_buffer.push(13);
+		} 
+		if(LF) {
+			tx_buffer.push(10);
+		}
+
 		await invoke('send_bytes', {
 		  path: current_port,
 		  data: tx_buffer
 		});
+		
 		last_buffer = copyObj(tx_buffer);
-		let buf = copyObj(tx_buffer);
-		console.log('[CR]',CR,'[LF]',LF);
-		if(CR) {
-			buf.push(13);
-		} 
-		if(LF) {
-			buf.push(10);
-		}
-		console.log('[SEND]',buf);
-		let frag = renderRX(buf, true);
+		console.log('[SEND]',tx_buffer);
+		
+		let frag = renderRX(tx_buffer, true);
 		el_rx.appendChild(frag);
 		doEcho();
 		doEOL();
 		dotexthex();
 		doScroll();
 		clearTX();
+		addToHistory(tx_buffer);
 	} catch(e) {
 		console.log('sendBuffer()', e);	
 	}
@@ -525,6 +537,7 @@ async function reSendBuffer() {
 	console.log('reSendBuffer()', last_buffer);
 	if(last_buffer.length === 0) {
 		console.log('Last buffer empty');
+		return;
 	}
 
 	try {
@@ -532,18 +545,14 @@ async function reSendBuffer() {
 		  path: current_port,
 		  data: last_buffer
 		});
-		let buf = copyObj(last_buffer);
-		console.log('[CR]',CR,'[LF]',LF);
-		if(CR)
-			buf.push(13);
-		if(LF)
-			buf.push(10);
-		let frag = renderRX(buf, true);
+
+		let frag = renderRX(last_buffer, true);
 		el_rx.appendChild(frag);
 		doEcho();
 		doEOL();
 		dotexthex();
 		doScroll();
+		addToHistory(last_buffer);
 	} catch(e) {
 		console.log('reSendBuffer()', e);	
 	}
@@ -1957,5 +1966,37 @@ async function chooseCodeLanguage() {
         });
       });
     }
+  });
+}
+
+function addToHistory(bytes) {
+	historyArray.push(...bytes);
+	if(historyArray.length > HISTORY_LENGTH)
+		historyArray.shift();
+}
+
+async function historyTX() {
+  let result = await Swal.fire({
+    title: "History",
+    html: 
+	 `<div class="ft-wrap" role="table" id="select_history"></div>
+	  <div class="ft-hint" style="margin-left:7px;float:left;">Click on a row.</div>`,
+    showConfirmButton: true,
+    allowOutsideClick: true,
+    allowEscapeKey: true,
+    confirmButtonText: "Close",
+
+    background: "#0b1220",
+    color: "#e5e7eb",
+    width: 720,
+    customClass: {
+      popup: "ft-swal",
+      title: "ft-title",
+      htmlContainer: "ft-html",
+    },
+    didOpen: () => {
+      renderHistory();
+      handleHistory();
+	}
   });
 }
