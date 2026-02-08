@@ -2074,3 +2074,65 @@ function handleHistory() {
 	clearTX();
   });
 }
+
+function timeAgo(epochMs) {
+  const now = Date.now();
+  const diff = Math.max(0, now - epochMs);
+
+  const sec = 1000;
+  const min = 60 * sec;
+  const hour = 60 * min;
+  const day = 24 * hour;
+  const week = 7 * day;
+  const month = 30 * day;
+  const year = 365 * day;
+
+  if (diff < 30 * sec) return "now";
+  if (diff < 90 * sec) return "1 min ago";
+
+  const mins = Math.round(diff / min);
+  if (mins < 10) return `${mins} mins ago`;
+  if (mins < 15) return "10 mins ago";
+  if (mins < 20) return "15 mins ago";
+  if (mins < 30) return "20 mins ago";
+  if (mins < 45) return "30 mins ago";
+  if (mins < 60) return "45 mins ago";
+
+  const hours = Math.round(diff / hour);
+  if (hours < 2) return "1 hour ago";
+  if (hours < 24) return `${hours} hours ago`;
+
+  const days = Math.round(diff / day);
+  if (days < 2) return "1 day ago";
+  if (days < 7) return `${days} days ago`;
+
+  const weeks = Math.round(diff / week);
+  if (weeks < 2) return "1 week ago";
+  if (weeks < 5) return `${weeks} weeks ago`;
+
+  const months = Math.round(diff / month);
+  if (months < 2) return "1 month ago";
+  if (months < 12) return `${months} months ago`;
+
+  const years = Math.round(diff / year);
+  return years < 2 ? "1 year ago" : `${years} years ago`;
+}
+
+function startEpochUpdater(intervalMs = 1000) {
+  function update() {
+    const now = Date.now();
+
+    document.querySelectorAll('.epoc[data-epoc]').forEach(el => {
+      const epoch = Number(el.dataset.epoc);
+      if (!epoch || epoch > now) return;
+
+      const text = timeAgo(epoch);
+      if (el.textContent !== text) {
+        el.textContent = text;
+      }
+    });
+  }
+
+  update(); // run immediately
+  return setInterval(update, intervalMs);
+}
