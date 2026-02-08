@@ -31,7 +31,10 @@ let		CR 		 	 	= true;
 let		LF 		 	 	= true;
 let		scroll		 	= true;
 let		texthex 	 	= true;
+
+ // keep for when persistance is added
 let		auto_history	= true;
+let		historyArray	= [];
 
 let 	hexEl 		 	= null;
 let 	textEl 		 	= null;
@@ -58,7 +61,6 @@ let 	speedByteAcc 	= 0;
 let 	speedArray 		= [];
 
 let		HISTORY_LENGTH	= 100;
-let		historyArray	= [];
 
 const 	GREEN = '<div class="ft-connect ft-green"></div>';
 const 	RED   = '<div class="ft-connect ft-red"></div>';
@@ -122,6 +124,7 @@ let   sparkEl		= null;
 
 console.log('[Selected]', current_port, current_baud);
 
+startListeners();
 //-----------------------------RX-------------------//
 
 r_rx.insertAdjacentHTML(
@@ -235,7 +238,7 @@ r_tx.insertAdjacentHTML(
   'beforeend',
   '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="history_tx">History</button>'
 );
-document.getElementById("history_tx").addEventListener("click", historyTX);
+document.getElementById("history_tx").addEventListener("click", openHistoryWindow);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
@@ -1641,6 +1644,39 @@ export async function openPlotterWindow() {
 	})
 }
 
+export async function openHistoryWindow() {
+  const label = 'history'
+
+	try {
+	  var win = await WebviewWindow.getByLabel(label)
+	  if (win) {
+		await win.show()
+		await win.setFocus()
+		return
+	  }
+
+	  win = new WebviewWindow(label, {
+		title: '8N1Term History',
+		url: 'history.html',
+		width: 700,
+		height: 500,
+	  })
+      await win.show()
+	  await win.setFocus()
+
+	} catch(e) {
+		console.log('History window opening');
+	}
+	const mainWin = getCurrentWindow()
+
+	mainWin.onCloseRequested(async () => {
+	  const historyWin = await WebviewWindow.getByLabel('history')
+	  if (historyWin) {
+		await historyWin.close()
+	  }
+	})
+}
+
 
 /******************** Checksum *********************/
 function setInput(id, value, disabled) {
@@ -1964,7 +2000,7 @@ function addToHistory(bytes) {
 	historyArray.push([...bytes]);
 	if(historyArray.length > HISTORY_LENGTH)
 		historyArray.shift();
-	console.log(historyArray);
+	emit("history_update", historyArray);
 }
 
 async function historyTX() {
@@ -2075,64 +2111,8 @@ function handleHistory() {
   });
 }
 
-function timeAgo(epochMs) {
-  const now = Date.now();
-  const diff = Math.max(0, now - epochMs);
-
-  const sec = 1000;
-  const min = 60 * sec;
-  const hour = 60 * min;
-  const day = 24 * hour;
-  const week = 7 * day;
-  const month = 30 * day;
-  const year = 365 * day;
-
-  if (diff < 30 * sec) return "now";
-  if (diff < 90 * sec) return "1 min ago";
-
-  const mins = Math.round(diff / min);
-  if (mins < 10) return `${mins} mins ago`;
-  if (mins < 15) return "10 mins ago";
-  if (mins < 20) return "15 mins ago";
-  if (mins < 30) return "20 mins ago";
-  if (mins < 45) return "30 mins ago";
-  if (mins < 60) return "45 mins ago";
-
-  const hours = Math.round(diff / hour);
-  if (hours < 2) return "1 hour ago";
-  if (hours < 24) return `${hours} hours ago`;
-
-  const days = Math.round(diff / day);
-  if (days < 2) return "1 day ago";
-  if (days < 7) return `${days} days ago`;
-
-  const weeks = Math.round(diff / week);
-  if (weeks < 2) return "1 week ago";
-  if (weeks < 5) return `${weeks} weeks ago`;
-
-  const months = Math.round(diff / month);
-  if (months < 2) return "1 month ago";
-  if (months < 12) return `${months} months ago`;
-
-  const years = Math.round(diff / year);
-  return years < 2 ? "1 year ago" : `${years} years ago`;
-}
-
-function startEpochUpdater(intervalMs = 1000) {
-  function update() {
-    const now = Date.now();
-
-    document.querySelectorAll('.epoc[data-epoc]').forEach(el => {
-      const epoch = Number(el.dataset.epoc);
-      if (!epoch || epoch > now) return;
-
-      const text = timeAgo(epoch);
-      if (el.textContent !== text) {
-        el.textContent = text;
-      }
-    });
-  }
-
-  update(); // run immediately
-  return setInterval(update, intervalMs);
+function startListeners() {
+	listen("history_get", () => {
+		emit('history_update', historyArray);
+	});
 }

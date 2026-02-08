@@ -5,114 +5,26 @@
 <title>8N1Term History</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<style>
-	html, body {
-		margin: 0;
-		padding: 0;
-		background: #0d1117;
-		color: #c9d1d9;
-		height: 100%;
-		width: 100%;
-		overflow: hidden;
-		font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-	}
-
-	#plotter {
-		height: 100%;
-		width: 100%;
-	}
-
-	#filter {
-		position:absolute;
-		right:10px;
-		top:10px;
-	}
-	.text {
-		float:left;
-		margin-right:10px;
-		margin-top:-2px;
-	}
-	#min {
-		float:left;
-		margin-right:10px;
-	}
-	#max {
-		float:left;
-	}
-  
-	.ft-input {
-		width: 80px;
-		padding: 2px 6px;
-		font-size: 13px;
-		border: 2px solid rgba(148, 163, 184, 0.45);
-		background: rgba(2, 6, 23, 0.6);
-		color: #e5e7eb;
-		border-radius: 8px;
-	}
-
-	.ft-input:hover {
-		border-color: rgba(148, 163, 184, 0.65);
-		background: rgba(2, 6, 23, 0.75);
-	}
-
-	.ft-input:active {
-		transform: translateY(1px);
-		border-color: rgba(148, 163, 184, 1);
-	}
-</style>
 </head>
 <body>
 
-<div id="plotter"></div>
-
-<div id="filter">
-	<div class="text">Filter:</div>
-	<input id="min" class="ft-input" placeholder="min" value="-10000">
-	<input id="max" class="ft-input" placeholder="max" value="10000">
-</div>
+<div class="ft-wrap" style="padding-bottom:2px" role="table" id="select_history"></div>
+<div style="margin-top:5px;margin-left:-10px" id="auto-send-outer"></div>
 
 <script type="module">
+import './style.css';
 import { listen } from '@tauri-apps/api/event'
 
-async function historyTX() {
-  let result = await Swal.fire({
-    title: "History",
-    html:` 
-	  <div class="ft-wrap" style="padding-bottom:2px" role="table" id="select_history"></div>
-	  <div style="margin-top:5px;margin-left:-10px" id="auto-send-outer"></div>
-	`,
-    showConfirmButton: true,
-    allowOutsideClick: true,
-    allowEscapeKey: true,
-    confirmButtonText: "Close",
+let auto_history = true;
 
-    background: "#0b1220",
-    color: "#e5e7eb",
-    width: 730,
-    customClass: {
-      popup: "ft-swal",
-      title: "ft-title",
-      htmlContainer: "ft-html",
-    },
-    didOpen: () => {
-		const el = document.querySelector("#auto-send-outer");
-		const tog_auto_history = createToggle({
-		  label: "Auto Send",
-		  initial: auto_history,
-		  onChange: (label, state) => {
-			console.log(label, state);
-			auto_history = state;
-		  }
-		});
-		el.appendChild(tog_auto_history);
+listen("history_update", e => {
+	renderHistory(e.payload);
+});
 
-		renderHistory();
-		handleHistory();
-	}
-  });
-}
+invoke("history_get");
 
-function renderHistory() {
+
+function renderHistory(historyArray) {
   const el = document.querySelector("#select_history");
   el.innerHTML = ""; // clear previous content
 
@@ -182,6 +94,67 @@ function handleHistory() {
   });
 }
 
+function timeAgo(epochMs) {
+  const now = Date.now();
+  const diff = Math.max(0, now - epochMs);
+
+  const sec = 1000;
+  const min = 60 * sec;
+  const hour = 60 * min;
+  const day = 24 * hour;
+  const week = 7 * day;
+  const month = 30 * day;
+  const year = 365 * day;
+
+  if (diff < 30 * sec) return "now";
+  if (diff < 90 * sec) return "1 min ago";
+
+  const mins = Math.round(diff / min);
+  if (mins < 10) return `${mins} mins ago`;
+  if (mins < 15) return "10 mins ago";
+  if (mins < 20) return "15 mins ago";
+  if (mins < 30) return "20 mins ago";
+  if (mins < 45) return "30 mins ago";
+  if (mins < 60) return "45 mins ago";
+
+  const hours = Math.round(diff / hour);
+  if (hours < 2) return "1 hour ago";
+  if (hours < 24) return `${hours} hours ago`;
+
+  const days = Math.round(diff / day);
+  if (days < 2) return "1 day ago";
+  if (days < 7) return `${days} days ago`;
+
+  const weeks = Math.round(diff / week);
+  if (weeks < 2) return "1 week ago";
+  if (weeks < 5) return `${weeks} weeks ago`;
+
+  const months = Math.round(diff / month);
+  if (months < 2) return "1 month ago";
+  if (months < 12) return `${months} months ago`;
+
+  const years = Math.round(diff / year);
+  return years < 2 ? "1 year ago" : `${years} years ago`;
+}
+
+function startEpochUpdater(intervalMs = 1000) {
+  function update() {
+    const now = Date.now();
+
+    document.querySelectorAll('.epoc[data-epoc]').forEach(el => {
+      const epoch = Number(el.dataset.epoc);
+      if (!epoch || epoch > now) return;
+
+      const text = timeAgo(epoch);
+      if (el.textContent !== text) {
+        el.textContent = text;
+      }
+    });
+  }
+
+  update(); // run immediately
+  return setInterval(update, intervalMs);
+}
 </script>
 
 </body>
