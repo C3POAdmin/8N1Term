@@ -2012,7 +2012,7 @@ function renderHistory() {
   const df = document.createDocumentFragment();
   let hasHistory = false;
 
-  for (let i = 0; i < historyArray.length; i++) {
+  for (let i = historyArray.length - 1; i >= 0; i--) {
     const h = historyArray[i];
     if (!h || h.length === 0) continue;
 
