@@ -124,7 +124,6 @@ let   sparkEl		= null;
 
 console.log('[Selected]', current_port, current_baud);
 
-startListeners();
 //-----------------------------RX-------------------//
 
 r_rx.insertAdjacentHTML(
@@ -1609,6 +1608,10 @@ async function startListeners() {
 			console.log('serial_state',e);
 		}
 	});
+	
+	listen("history_get", () => {
+		emit('history_update', historyArray);
+	});
 }
 
 export async function openPlotterWindow() {
@@ -2111,8 +2114,3 @@ function handleHistory() {
   });
 }
 
-function startListeners() {
-	listen("history_get", () => {
-		emit('history_update', historyArray);
-	});
-}

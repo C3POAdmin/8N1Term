@@ -5,7 +5,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
-        chart: 'plotter.html'
+        chart: 'plotter.html',
+		history: 'history.html'
       }
     }
   }
