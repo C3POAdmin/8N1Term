@@ -1,4 +1,6 @@
 import './style.css';
+import { ASCII_CTRL, asciiDisplayName, renderTXBytes,  renderRXBytes }   		from './renderer.js'
+
 import { CHECKSUM_DEFS }   		from './checksum_defs.js'
 import { computeChecksum } 		from './checksum_engine.js'
 import { generateChecksumCode } from './checksum_generate.js'
@@ -8,7 +10,7 @@ import Swal from 'sweetalert2';
 import { sparkline }     from "@fnando/sparkline";
 
 import { invoke } 		 from '@tauri-apps/api/core';
-import { listen } 		 from '@tauri-apps/api/event';
+import { listen , emit } from '@tauri-apps/api/event';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 
@@ -84,12 +86,7 @@ const CODE_LANGUAGES = [
   { id: 'rs',   label: 'Rust' },
 ];
 
-const ASCII_CTRL = [
-  'NUL','SOH','STX','ETX','EOT','ENQ','ACK','BEL',
-  'BS','TAB','LF','VT','FF','CR','SO','SI',
-  'DLE','DC1','DC2','DC3','DC4','NAK','SYN','ETB',
-  'CAN','EM','SUB','ESC','FS','GS','RS','US'
-];
+
 
 //=================================== main ==============================/
 
@@ -375,16 +372,6 @@ async function pasteFromClipboard() {
   }
 }
 
-function renderTXBytes(bytes) {
-	bytes.forEach(code => {
-		const hx = toHex2(code);
-		hexEl.textContent += (hexEl.textContent ? ' ' : '') + hx;
-
-		const token = asciiDisplayName(code);
-		textEl.textContent += token;
-	});
-}
-
 async function pasteTX() {
 	const text = await pasteFromClipboard();
 	if (!text) return;
@@ -504,6 +491,7 @@ async function restartApp() {
 		invoke('restart_app');
 	},100);
 }
+
 async function sendBytes(bytes) {
 	try {
 		await invoke('send_bytes', {
@@ -511,7 +499,7 @@ async function sendBytes(bytes) {
 		  data: bytes
 		});
 
-		let frag = renderRX(bytes, true);
+		let frag = renderRXBytes(bytes, true);
 		el_rx.appendChild(frag);
 		doEcho();
 		doEOL();
@@ -719,75 +707,6 @@ async function pickSerialPort() {
   });
 }
 
-function renderRX(values, tx = false, checksum = false) {
-  const frag = document.createDocumentFragment();
-
-  for (let i = 0; i < values.length; i++) {
-    const code = values[i];
-    if (code < 0 || code > 255) continue;
-
-    const hex = code.toString(16).toUpperCase().padStart(2, '0');
-
-    let label = '';
-    let isPrintable = false;
-
-    // ---- label resolution (gfx only) ----
-    if (code < 32) {
-      label = ASCII_CTRL[code] ?? '';
-    } else if (code === 32) {
-      label = 'SPACE';
-      isPrintable = true;
-    } else if (code === 127) {
-      label = 'DEL';
-    } else if (code >= 0x20 && code <= 0x7E) {
-      label = String.fromCharCode(code);
-      isPrintable = true;
-    }
-    // 128–255 → intentionally blank label
-    // ------------------------------------
-
-    const cell = document.createElement('div');
-    cell.className = tx ? 'ascii-tx' : 'ascii-rx';
-    cell.classList.add('border-hide');
-	//if(checksum)
-	//	cell.classList.add('ascii-checksum');
-		
-
-    cell.innerHTML = `
-      <span class="ascii-hex">${hex}</span>
-      <span class="ascii-label ${!isPrintable ? 'ascii-raw' : ''} ${code == 32 ? 'ascii-small' : ''}">
-        ${label}
-      </span>
-    `;
-
-    // Hide layout-only bytes
-    if (code === 13 || code === 10 || code === 32) {
-      cell.classList.add('ascii-hide');
-    }
-
-    frag.appendChild(cell);
-
-    // ---- newline handling (NO swallowing) ----
-    if (code === 13) {            // CR
-      if (values[i + 1] !== 10) {
-        frag.appendChild(makeAsciiBreak());
-      }
-    } else if (code === 10) {     // LF
-      frag.appendChild(makeAsciiBreak());
-    }
-    // -----------------------------------------
-  }
-
-  return frag;
-}
-
-
-function makeAsciiBreak() {
-  const br = document.createElement('div');
-  br.className = 'ascii-break';
-  return br;
-}
-
 function drawAsciiKeyboard(containerId, onKey) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -840,18 +759,6 @@ function isEditableTarget(t) {
   if (!t) return false;
   const tag = t.tagName?.toLowerCase();
   return tag === 'input' || tag === 'textarea' || t.isContentEditable;
-}
-
-function toHex2(n) {
-  return n.toString(16).toUpperCase().padStart(2, '0');
-}
-
-function asciiDisplayName(code) {
-  if (code < 32) return `[${ASCII_CTRL[code]}]`;
-
-  if (code === 127) return '[DEL]';
-  if (code > 127) return `[${toHex2(code)}]`;
-  return String.fromCharCode(code);
 }
 
 function flashAsciiKey(code, ms = 300) {
@@ -1570,7 +1477,7 @@ async function startListeners() {
 			}
 
 			rx_buffer.push(...bytes);
-			let frag = renderRX(bytes, false);
+			let frag = renderRXBytes(bytes, false);
 			el_rx.appendChild(frag);
 			doEcho();
 			dotexthex();
@@ -2062,7 +1969,7 @@ function renderHistory() {
     btn.type = "button";
     btn.dataset.history = i;
 
-    const frag = renderRX(h, true);
+    const frag = renderRXBytes(h, true);
     btn.appendChild(frag);
 
     df.appendChild(btn);
@@ -2081,6 +1988,10 @@ function renderHistory() {
   }
 
   el.appendChild(df);
+}
+
+function toHex2(n) {
+  return n.toString(16).toUpperCase().padStart(2, '0');
 }
 
 function handleHistory() {

@@ -1,4 +1,5 @@
 import './style.css';
+import './renderer.js';
 
 import { emit, listen } from '@tauri-apps/api/event'
 
@@ -17,6 +18,7 @@ function renderHistory(historyArray) {
 
   for (let i = historyArray.length - 1; i >= 0; i--) {
     const h = historyArray[i];
+	console.log(h);
     if (!h || h.length === 0) continue;
 
     hasHistory = true;
@@ -140,14 +142,19 @@ function startEpochUpdater(intervalMs = 1000) {
   return setInterval(update, intervalMs);
 }
 
-void startListeners() {
+function startListeners() {
 	listen("history_update", e => {
-		renderHistory(e.payload);
+		try {
+			console.log('[history_update]',e.payload);
+			renderHistory(e.payload);
+		} catch (e) {
+			console.log('[startListeners] history_update Error:',e);
+		}
 	});
 	emit("history_get");	
 }
 
-void renderApp() {
+function renderApp() {
 	root.innerHTML = 
 	`<div class="ft-wrap" style="padding-bottom:2px" role="table" id="select_history"></div>
 	 <div style="margin-top:5px;margin-left:-10px" id="auto-send-outer"></div>`;
