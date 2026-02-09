@@ -1,18 +1,19 @@
-// NOTE:
-// state.value is intentional.
-// Wrapping primitives in a state object allows components to mutate shared truth
-// without relying on closures, globals, or callback chains.
-// This keeps reads simple (if (state.value)) and makes state inspectable/debuggable.
-
 export function addButton(parent, {
   label,
   onClick,
   className = "",
+  small = false,
   style = ""
 }) {
   const btn = document.createElement("button");
   btn.textContent = label;
-  btn.className = className;
+
+  btn.className = [
+    "component-button",
+    small ? "component-button-small" : "",
+    className
+  ].filter(Boolean).join(" ");
+
   if (style) btn.style.cssText = style;
   if (onClick) btn.addEventListener("click", onClick);
 
@@ -20,35 +21,20 @@ export function addButton(parent, {
   return btn;
 }
 
-/**************** USAGE ***********************
-const AUTO_SEND = { value: false }; // because objects are pointers and primiteves (bools) will copy and not change within the function.
-
-addToggle(panel, {
-  label: "Auto send",
-  state: AUTO_SEND
-});
-
-if (AUTO_SEND.value) {
-  sendFrame();
-}
-**************************/
-
-
 export function addToggle(parent, {
   label = "",
-  state,              // { value: boolean }
+  initial = false,
   onChange,
-  text_width
+  text_width,
+  className = ""
 }) {
-  if (!state || typeof state.value !== "boolean") {
-    throw new Error("addToggle requires state: { value: boolean }");
-  }
+  let state = !!initial;
 
   const wrap = document.createElement("div");
-  wrap.className = "ft-toggle-wrap";
+  wrap.className = ["slider-toggle-wrap", className].filter(Boolean).join(" ");
 
   const lbl = document.createElement("span");
-  lbl.className = "ft-toggle-label";
+  lbl.className = "slider-toggle-label";
   lbl.textContent = label;
 
   if (typeof text_width === "number") {
@@ -56,35 +42,37 @@ export function addToggle(parent, {
   }
 
   const btn = document.createElement("button");
-  btn.className = "ft-toggle" + (state.value ? " on" : "");
   btn.type = "button";
+  btn.className = "slider-toggle";
 
   const knob = document.createElement("div");
-  knob.className = "ft-toggle-knob";
+  knob.className = "slider-toggle-knob";
 
   btn.appendChild(knob);
   wrap.appendChild(lbl);
   wrap.appendChild(btn);
 
   const apply = (fire = true) => {
-    btn.classList.toggle("on", state.value);
+    btn.classList.toggle("on", state);
     if (fire && typeof onChange === "function") {
-      onChange(label, state.value);
+      onChange(label, state);
     }
   };
 
   btn.addEventListener("click", () => {
-    state.value = !state.value;
+    state = !state;
     apply(true);
   });
 
-  // minimal, explicit API
+  // simple, predictable API
   wrap.set = (v) => {
-    state.value = !!v;
+    state = !!v;
     apply(false);
   };
 
-  wrap.get = () => state.value;
+  wrap.get = () => state;
+
+  apply(false);
 
   parent.appendChild(wrap);
   return wrap;

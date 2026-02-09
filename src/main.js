@@ -1,4 +1,6 @@
 import './style.css';
+import './slider.css';
+
 import { ASCII_CTRL, asciiDisplayName, renderTXBytes,  renderRXBytes }   		from './renderer.js'
 
 import { CHECKSUM_DEFS }   		from './checksum_defs.js'
