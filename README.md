@@ -73,7 +73,7 @@
 
 Opens a separate Plotter window for live graphing of **numeric values automatically extracted** from incoming serial data streams.
 
-The plotter is format-agnostic — it detects and plots numbers from **mixed or unstructured input** (plain text, debug output, CSV-style data, ints, floats, etc.) without requiring a fixed protocol or special formatting.
+The plotter is format-agnostic — it detects and plots numbers from **mixed or unstructured input** (plain text, debug output, CSV-style data, ints, floats, negatives, etc.) without requiring a fixed protocol or special formatting.
 
 Data Filter: Min / Max
 
