@@ -1,7 +1,8 @@
 import './style.css';
-import './renderer.js';
-
-import { emit, listen } from '@tauri-apps/api/event'
+import './components.css';
+import { renderRXBytes }  from './renderer.js';
+import { addToggle } 	  from'./components.js';
+import { emit, listen }   from '@tauri-apps/api/event'
 
 const 	root 		 	= document.getElementById('app');
 let 	auto_history 	= true;
@@ -24,11 +25,11 @@ function renderHistory(historyArray) {
     hasHistory = true;
 
     const btn = document.createElement("button");
-    btn.classList.add("ft-btn", "ft-btn-column");
+    btn.classList.add("component-btn", "ft-btn-column");
     btn.type = "button";
     btn.dataset.history = i;
 
-    const frag = renderRX(h, true);
+    const frag = renderRXBytes(h, true);
     btn.appendChild(frag);
 
     df.appendChild(btn);
@@ -53,7 +54,7 @@ function handleHistory() {
   const root = document.getElementById("select_history");
 
   root.addEventListener("click", (e) => {
-    const btn = e.target.closest(".ft-btn");
+    const btn = e.target.closest(".component-btn");
     if (!btn) return;
 
     const idx = Number(btn.dataset.history);
@@ -156,6 +157,15 @@ function startListeners() {
 
 function renderApp() {
 	root.innerHTML = 
-	`<div class="ft-wrap" style="padding-bottom:2px" role="table" id="select_history"></div>
+	`<div class="ft-wrap" style="padding-bottom:2px;padding:5px;" role="table" id="select_history"></div>
 	 <div style="margin-top:5px;margin-left:-10px" id="auto-send-outer"></div>`;
+    const el = document.querySelector("#auto-send-outer");
+	const tog_auto_history = addToggle(el, {
+		label: "Auto Send",
+		initial: auto_history,
+		onChange: (label, state) => {
+			console.log(label, state);
+			auto_history = state;
+		}
+	});
 }
