@@ -1,0 +1,102 @@
+.component-btn {
+  appearance: none;
+  border: 2px solid rgba(148, 163, 184, 0.80);
+  background: rgba(2, 6, 23, 0.6);
+  color: #e5e7eb;
+  padding: 10px 10px;
+  border-radius: 10px;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.04s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.component-btn-left {
+	border-right-width:1.5px;
+	border-top-right-radius: 0 !important;
+	border-bottom-right-radius: 0 !important;	
+}
+
+.component-btn-right {
+	border-left-width:1.5px;
+	border-top-left-radius: 0 !important;
+	border-bottom-left-radius: 0 !important;
+}
+
+.component-btn-small {
+	padding: 2px 5px;
+    border-radius: 7px;
+}
+
+.component-btn:hover {
+  border-color: rgba(148, 163, 184, 0.95);
+  background: rgba(2, 6, 23, 0.75);
+}
+
+.component-btn:active {
+  transform: translateY(1px);
+  border-color: rgba(148, 163, 184, 1);
+}
+
+.component-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.component-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.component-toggle-label {
+  font-size: 13px;
+  color: #cbd5f5;
+  white-space: nowrap;
+}
+
+.component-toggle {
+  width: 46px;
+  height: 24px;
+  border: 2px solid rgba(148, 163, 184, 0.85);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  background-color:transparent;
+}
+
+.component-toggle:hover {
+  border-color: rgba(148, 163, 184, 0.90);
+}
+
+.component-toggle:active {
+  transform: translateY(1px);
+  border-color: rgba(148, 163, 184, 1);
+}
+
+.component-toggle-knob {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #a5575b;
+  transition: transform 140ms ease;
+}
+
+.component-toggle:hover {
+  filter: brightness(1.1);
+}
+
+.component-toggle-wrap {
+	float:left;
+	margin-left:15px;
+}
+
+.component-toggle.on .component-toggle-knob {
+  transform: translateX(21px);
+  background: #22c55e;
+}

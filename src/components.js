@@ -9,8 +9,8 @@ export function addButton(parent, {
   btn.textContent = label;
 
   btn.className = [
-    "component-button",
-    small ? "component-button-small" : "",
+    "component-btn",
+    small ? "component-btn-small" : "",
     className
   ].filter(Boolean).join(" ");
 
@@ -31,10 +31,10 @@ export function addToggle(parent, {
   let state = !!initial;
 
   const wrap = document.createElement("div");
-  wrap.className = ["slider-toggle-wrap", className].filter(Boolean).join(" ");
+  wrap.className = ["component-toggle-wrap", className].filter(Boolean).join(" ");
 
   const lbl = document.createElement("span");
-  lbl.className = "slider-toggle-label";
+  lbl.className = "component-toggle-label";
   lbl.textContent = label;
 
   if (typeof text_width === "number") {
@@ -43,10 +43,10 @@ export function addToggle(parent, {
 
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.className = "slider-toggle";
+  btn.className = "component-toggle";
 
   const knob = document.createElement("div");
-  knob.className = "slider-toggle-knob";
+  knob.className = "component-toggle-knob";
 
   btn.appendChild(knob);
   wrap.appendChild(lbl);
@@ -64,7 +64,6 @@ export function addToggle(parent, {
     apply(true);
   });
 
-  // simple, predictable API
   wrap.set = (v) => {
     state = !!v;
     apply(false);

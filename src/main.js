@@ -1,7 +1,8 @@
 import './style.css';
-import './slider.css';
+import './components.css';
 
-import { ASCII_CTRL, asciiDisplayName, renderTXBytes,  renderRXBytes }   		from './renderer.js'
+import { addToggle, addButton } from'./components.js';
+import { ASCII_CTRL, asciiDisplayName, renderTXBytes,  renderRXBytes } from './renderer.js'
 
 import { CHECKSUM_DEFS }   		from './checksum_defs.js'
 import { computeChecksum } 		from './checksum_engine.js'
@@ -127,19 +128,19 @@ console.log('[Selected]', current_port, current_baud);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right" class="ft-btn ft-small" id="restart">New</button>'
+  '<button style="float:right" class="component-btn component-btn-small" id="restart">New</button>'
 );
 document.getElementById("restart").addEventListener("click", restartApp);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px" class="ft-btn ft-small" id="save">Save</button>'
+  '<button style="float:right;margin-right:10px" class="component-btn component-btn-small" id="save">Save</button>'
 );
 document.getElementById("save").addEventListener("click", saveBytes);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="disconnect">Disconnect</button>'
+  '<button style="float:right;margin-right:10px;" class="component-btn component-btn-small" id="disconnect">Disconnect</button>'
 );
 const el_disconnect = document.getElementById("disconnect")
 el_disconnect.addEventListener("click", closePort);
@@ -147,7 +148,7 @@ el_disconnect.hidden = true;
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="connect">Connect</button>'
+  '<button style="float:right;margin-right:10px;" class="component-btn component-btn-small" id="connect">Connect</button>'
 );
 const el_connect = document.getElementById("connect")
 el_connect.addEventListener("click", openPort);
@@ -155,26 +156,26 @@ el_connect.hidden = true;
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="clear_rx">Clear</button>'
+  '<button style="float:right;margin-right:10px;" class="component-btn component-btn-small" id="clear_rx">Clear</button>'
 );
 const el_clear = document.getElementById("clear_rx")
 el_clear.addEventListener("click", clearRX);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="plotter_rx">Plotter</button>'
+  '<button style="float:right;margin-right:10px;" class="component-btn component-btn-small" id="plotter_rx">Plotter</button>'
 );
 const el_plotter = document.getElementById("plotter_rx")
 el_plotter.addEventListener("click", openPlotterWindow);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;" class="ft-btn ft-small" id="cap_rx">Capture</button>'
+  '<button style="float:right;margin-right:10px;" class="component-btn component-btn-small" id="cap_rx">Capture</button>'
 );
 const el_cap = document.getElementById("cap_rx")
 el_cap.addEventListener("click", startCapture);
 
-const tog_texthex = createToggle({
+const tog_texthex = addToggle(l_rx, {
   label: "Text/Hex",
   initial: texthex,
   onChange: (label, state) => {
@@ -183,9 +184,8 @@ const tog_texthex = createToggle({
 	dotexthex();
   }
 });
-l_rx.appendChild(tog_texthex);
 
-const tog_eol = createToggle({
+const tog_eol = addToggle(l_rx, {
   label: "EOL",
   initial: EOL,
   onChange: (label, state) => {
@@ -194,9 +194,8 @@ const tog_eol = createToggle({
 	doEOL();
   }
 });
-l_rx.appendChild(tog_eol);
 
-const tog_scroll = createToggle({
+const tog_scroll = addToggle(l_rx, {
   label: "Scroll",
   initial: scroll,
   onChange: (label, state) => {
@@ -204,55 +203,54 @@ const tog_scroll = createToggle({
 	scroll = state;
   }
 });
-l_rx.appendChild(tog_scroll);
 
 //-----------------------------TX-------------------//
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:-3px;margin-top:-2px" class="ft-btn ft-small"  id="re-send">RE-SEND</button>'
+  '<button style="float:right;margin-right:-3px;margin-top:-2px" class="component-btn component-btn-small"  id="re-send">RE-SEND</button>'
 );
 document.getElementById("re-send").addEventListener("click", reSendBuffer);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="load">Load</button>'
+  '<button style="float:right;margin-right:10px;margin-top:-2px" class="component-btn component-btn-small" id="load">Load</button>'
 );
 document.getElementById("load").addEventListener("click", loadBytes);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="paste">Paste</button>'
+  '<button style="float:right;margin-right:10px;margin-top:-2px" class="component-btn component-btn-small" id="paste">Paste</button>'
 );
 document.getElementById("paste").addEventListener("click", pasteTX);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="clear_tx">Clear</button>'
+  '<button style="float:right;margin-right:10px;margin-top:-2px" class="component-btn component-btn-small" id="clear_tx">Clear</button>'
 );
 document.getElementById("clear_tx").addEventListener("click", clearTX);
 
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:10px;margin-top:-2px" class="ft-btn ft-small" id="history_tx">History</button>'
+  '<button style="float:right;margin-right:10px;margin-top:-2px" class="component-btn component-btn-small" id="history_tx">History</button>'
 );
 document.getElementById("history_tx").addEventListener("click", openHistoryWindow);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-top:-2px;margin-right:10px;" class="ft-btn ft-small ft-right-btn" id="apply_tx">Apply</button>'
+  '<button style="float:right;margin-top:-2px;margin-right:10px;" class="component-btn component-btn-small component-btn-right" id="apply_tx">Apply</button>'
 );
 const el_apply = document.getElementById("apply_tx")
 el_apply.addEventListener("click", applyTX);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-top:-2px;" class="ft-btn ft-small ft-left-btn" id="checksum_tx">Checksum</button>'
+  '<button style="float:right;margin-top:-2px;" class="component-btn component-btn-small component-btn-left" id="checksum_tx">Checksum</button>'
 );
 const el_checksum = document.getElementById("checksum_tx")
 el_checksum.addEventListener("click", checksumTX);
 
-const tog_echo = createToggle({
+const tog_echo = addToggle(l_tx, {
   label: "Echo",
   initial: echo,
   onChange: (label, state) => {
@@ -261,9 +259,8 @@ const tog_echo = createToggle({
 	doEcho();
   }
 });
-l_tx.appendChild(tog_echo);
 
-const tog_cr = createToggle({
+const tog_cr = addToggle(l_tx, {
   label: "CR",
   initial: CR,
   onChange: (label, state) => {
@@ -271,9 +268,8 @@ const tog_cr = createToggle({
 	CR = state;
   }
 });
-l_tx.appendChild(tog_cr);
 
-const tog_lf = createToggle({
+const tog_lf = addToggle(l_tx, {
   label: "LF",
   initial: LF,
   onChange: (label, state) => {
@@ -281,11 +277,10 @@ const tog_lf = createToggle({
 	LF = state;
   }
 });
-l_tx.appendChild(tog_lf);
 
 //-------------------------KB ------------------------/
 
-const tog_bs_enter = createToggle({
+const tog_bs_enter = addToggle(l_kb, {
   label: "BS/Enter",
   initial: bs_enter,
   onChange: (label, state) => {
@@ -293,7 +288,6 @@ const tog_bs_enter = createToggle({
 	bs_enter = state;
   }
 });
-l_kb.appendChild(tog_bs_enter);
 
 el_rx_title.innerHTML = `${current_port}&nbsp;${current_baud} Baud`
 
@@ -451,7 +445,7 @@ root.innerHTML =
 			<div class="tx-box tx-text" id="tx-text"></div>
 		  </div>
 		</div>
-		<button style="height:100%;" class="ft-btn no-select" id="send">SEND</button>
+		<button style="height:100%;" class="component-btn no-select" id="send">SEND</button>
 	  </div>
 	</div>
 
@@ -620,7 +614,7 @@ function renderPorts(ports) {
 
 		  return `
 			<div class="ft-row" role="row">
-			  <button class="ft-btn" type="button" data-port="${path}">
+			  <button class="component-btn" type="button" data-port="${path}">
 				${path}
 			  </button>
 
@@ -636,7 +630,7 @@ function renderPorts(ports) {
 function handlePorts() {
 	const root = document.getElementById("select_ports");
 	root.addEventListener("click", (e) => {
-		const btn = e.target.closest(".ft-btn");
+		const btn = e.target.closest(".component-btn");
 		console.log('handlePorts()',btn);
 		if (!btn) 
 			return;
@@ -692,7 +686,8 @@ async function pickSerialPort() {
 				}
 			});
 
-			const toggle = createToggle({
+			const qry = document.querySelector("#auto_connect");
+			const toggle = addToggle(qry, {
 				label: "Auto connect",
 				initial: auto_connect,
 				onChange: (label, state) => {
@@ -701,10 +696,7 @@ async function pickSerialPort() {
 				}
 			});
 
-			const qry = document.querySelector("#auto_connect");
-			qry.appendChild(toggle);
 			Swal.getPopup().focus();
-
 		}
   });
 }
@@ -966,7 +958,7 @@ export async function pickBaudRate() {
   ];
 
   const rows = baudRates.map(b => `
-    <button class="ft-btn" type="button" data-baud="${b}">
+    <button class="component-btn" type="button" data-baud="${b}">
       ${b.toLocaleString()}
     </button>
   `).join("");
@@ -1007,7 +999,7 @@ export async function pickBaudRate() {
       const root = Swal.getHtmlContainer();
 
       root.addEventListener("click", (e) => {
-        const btn = e.target.closest(".ft-btn");
+        const btn = e.target.closest(".component-btn");
         if (!btn) return;
 
         chosen = Number(btn.dataset.baud);
@@ -1031,49 +1023,6 @@ export async function pickBaudRate() {
 
   if (chosen !== null) return chosen;
   return null;
-}
-
-function createToggle({label = "", initial = false, onChange, text_width}) {
-  let state = !!initial;
-
-  const wrap = document.createElement("div");
-  wrap.className = "ft-toggle-wrap";
-
-  const lbl = document.createElement("span");
-  lbl.className = "ft-toggle-label";
-  lbl.textContent = label;
-
-  // 👇 apply label width only if provided
-  if (typeof text_width === "number") {
-    lbl.style.width = `${text_width}px`;
-  }
-
-  const btn = document.createElement("button");
-  btn.className = "ft-toggle" + (state ? " on" : "");
-  btn.type = "button";
-
-  const knob = document.createElement("div");
-  knob.className = "ft-toggle-knob";
-
-  btn.appendChild(knob);
-  wrap.appendChild(lbl);
-  wrap.appendChild(btn);
-
-  const setState = (v, fire = true) => {
-    state = !!v;
-    btn.classList.toggle("on", state);
-    if (fire && typeof onChange === "function") {
-      onChange(label, state);
-      wrap.blur();
-    }
-  };
-
-  btn.addEventListener("click", () => setState(!state));
-
-  wrap.set = (v) => setState(v, false);
-  wrap.get = () => state;
-  wrap.blur();
-  return wrap;
 }
 
 function copyObj(o) {
@@ -1151,13 +1100,13 @@ async function pickFileType(save = true) {
       html: `
         <div class="ft-wrap" role="table">
           <div class="ft-row" role="row">
-            <button class="ft-btn" type="button" style="width:300px" data-type="text">Text (As-is)</button>
+            <button class="component-btn" type="button" style="width:300px" data-type="text">Text (As-is)</button>
           </div>
           <div class="ft-row" role="row">
-            <button class="ft-btn" type="button" style="width:300px" data-type="raw">Raw (As-is)</button>
+            <button class="component-btn" type="button" style="width:300px" data-type="raw">Raw (As-is)</button>
           </div>
           <div class="ft-row" role="row">
-            <button class="ft-btn" type="button" style="width:300px" data-type="hex">HEX Representation (In text)</button>
+            <button class="component-btn" type="button" style="width:300px" data-type="hex">HEX Representation (In text)</button>
           </div>
         </div>
       `,
@@ -1178,7 +1127,7 @@ async function pickFileType(save = true) {
         const popup = Swal.getPopup();
 
         popup.addEventListener("click", (e) => {
-          const btn = e.target.closest(".ft-btn");
+          const btn = e.target.closest(".component-btn");
           if (!btn) return;
 
           const selection = btn.getAttribute("data-type");
@@ -1252,9 +1201,9 @@ function highSpeedCaptureDialog() {
       html: 
 	   `<div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
           <div style="display:flex; gap:10px;">
-            <button id="hs-start" class="ft-btn" style="width:90px;">Start</button>
-            <button id="hs-stop" class="ft-btn" style="width:90px;" disabled>Stop</button>
-            <button id="hs-save" class="ft-btn" style="width:90px;" disabled>Save</button>
+            <button id="hs-start" class="component-btn" style="width:90px;">Start</button>
+            <button id="hs-stop" class="component-btn" style="width:90px;" disabled>Stop</button>
+            <button id="hs-save" class="component-btn" style="width:90px;" disabled>Save</button>
           </div>
 		  <div style="font-size:13px;width:100%;">
 			  <div id="hs-status" style="margin-top:5px;opacity:0.80;">
@@ -1606,7 +1555,8 @@ function setToggle(id, state) {
 }
 
 function setupCustomChecksumControls() {
-  polyToggle = createToggle({
+  const cpt = document.getElementById("checksum-poly-toggle");
+  polyToggle = addToggle(cpt, {
     label: "Custom poly",
 	text_width: 80,
     initial: false,
@@ -1617,7 +1567,8 @@ function setupCustomChecksumControls() {
     }
   });
 
-  initToggle = createToggle({
+  const cit = document.getElementById("checksum-init-toggle");
+  initToggle = addToggle(cit, {
     label: "Custom init",
 	text_width: 80,
     initial: false,
@@ -1628,7 +1579,8 @@ function setupCustomChecksumControls() {
     }
   });
 
-  seedToggle = createToggle({
+  const cst = document.getElementById("checksum-seed-toggle");
+  seedToggle = addToggle(cst, {
     label: "Seed 0x00 / 0xFF",
 	text_width: 105,
     initial: false,
@@ -1637,10 +1589,6 @@ function setupCustomChecksumControls() {
 	  console.log({CHECKSUM_TYPE});
     }
   });
-
-  document.getElementById("checksum-poly-toggle").appendChild(polyToggle);
-  document.getElementById("checksum-init-toggle").appendChild(initToggle);
-  document.getElementById("checksum-seed-toggle").appendChild(seedToggle);
 
   document.getElementById("checksum-poly-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -1690,7 +1638,7 @@ async function checksumTX() {
 			  <div id="checksum-seed-toggle"></div>
 		</div>
 		<div class="ft-row" style="margin-top:8px;width:48%;float:right;display:flex;align-items:center;gap:8px">
-		  <button class="ft-btn ft-small" style="width:95px;margin-left:13px" id="get-the-code" type="button">
+		  <button class="component-btn component-btn-small" style="width:95px;margin-left:13px" id="get-the-code" type="button">
 			Get the code
 		  </button>
 		  <div class="ft-sub">In your preferred language</div>
@@ -1767,7 +1715,7 @@ function handleChecksumDefs() {
   const root = document.getElementById("select_checksum");
 
   root.addEventListener("click", (e) => {
-    const btn = e.target.closest(".ft-btn");
+    const btn = e.target.closest(".component-btn");
     if (!btn) return;
 
     const idx = Number(btn.dataset.checksum);
@@ -1836,7 +1784,7 @@ function renderChecksumDefs() {
 
     return `
       <div class="ft-row" role="row" data-checksum-outer="${i}">
-        <button class="ft-btn" type="button" data-checksum="${i}">
+        <button class="component-btn" type="button" data-checksum="${i}">
           ${d.name}
         </button>
 
@@ -1869,7 +1817,7 @@ async function chooseCodeLanguage() {
   ">
     ${CODE_LANGUAGES.map((l, i) => `
       <button
-        class="ft-btn ft-small generate-language"
+        class="component-btn component-btn-small generate-language"
         data-index="${i}"
         style="width:120px;text-align:left"
       >
@@ -1937,7 +1885,7 @@ async function historyTX() {
     },
     didOpen: () => {
 		const el = document.querySelector("#auto-send-outer");
-		const tog_auto_history = createToggle({
+		const tog_auto_history = addToggle({
 		  label: "Auto Send",
 		  initial: auto_history,
 		  onChange: (label, state) => {
@@ -1967,7 +1915,7 @@ function renderHistory() {
     hasHistory = true;
 
     const btn = document.createElement("button");
-    btn.classList.add("ft-btn", "ft-btn-column");
+    btn.classList.add("component-btn", "ft-btn-column");
     btn.type = "button";
     btn.dataset.history = i;
 
@@ -2000,7 +1948,7 @@ function handleHistory() {
   const root = document.getElementById("select_history");
 
   root.addEventListener("click", (e) => {
-    const btn = e.target.closest(".ft-btn");
+    const btn = e.target.closest(".component-btn");
     if (!btn) return;
 
     const idx = Number(btn.dataset.history);
