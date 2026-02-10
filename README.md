@@ -33,7 +33,7 @@
 - **Clear** – Clear RX buffer
 - **Disconnect** – Close the active COM port
 - **Save** – Save RX buffer to file
-- **New** – Start a new RX session
+- **New** – Start a new session
 
 ---
 
