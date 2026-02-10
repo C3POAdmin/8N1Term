@@ -121,11 +121,15 @@ The generated code is saved to a text file and opened using your operating syste
 
 ---
 
-### 📤 Clean File Loading/Saving Separation
+### 📤 File loading & representation
 
-- **TXT**: As-Is  
-- **RAW**: As-Is  
-- **HEX**: Formatted, human readable
+- **TXT**: As-is  
+- **RAW**: As-is  
+- **HEX**: Human-readable, canonical hex
+
+For **HEX files**, all byte data is shown and handled in canonical space-separated form:
+
+AA BB CC
 
 ---
 
