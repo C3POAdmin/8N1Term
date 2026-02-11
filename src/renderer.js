@@ -1,5 +1,14 @@
 
 /************ TX **************/
+export function renderTXBytes(bytes) {
+	bytes.forEach(code => {
+		const hx = toHex2(code);
+		hexEl.textContent += (hexEl.textContent ? ' ' : '') + hx;
+
+		const token = asciiDisplayName(code);
+		textEl.textContent += token;
+	});
+}
 
 export function asciiDisplayName(code) {
   if (code < 32) return `[${ASCII_CTRL[code]}]`;

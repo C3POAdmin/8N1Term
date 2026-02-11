@@ -1,9 +1,9 @@
 import './style.css';
 import './components.css';
 
-import { addToggle, addButton } from'./components.js';
 import { ASCII_CTRL, asciiDisplayName, renderRXBytes } from './renderer.js'
 
+import { addToggle, addButton } from './components.js';
 import { CHECKSUM_DEFS }   		from './checksum_defs.js'
 import { computeChecksum } 		from './checksum_engine.js'
 import { generateChecksumCode } from './checksum_generate.js'
@@ -18,6 +18,7 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 
 const 	root 		 	= document.getElementById('app');
+
 let		current_port 	= null;
 let		current_baud 	= null;
 let		ports			= null;
@@ -85,8 +86,6 @@ const CODE_LANGUAGES = [
   { id: 'py',   label: 'Python' },
   { id: 'rs',   label: 'Rust' },
 ];
-
-
 
 //=================================== main ==============================/
 
@@ -1896,6 +1895,12 @@ function addToHistory(bytes) {
 	} catch (e) {
 		console.log('history_update',e);
 	}
+}
+
+function makeAsciiBreak() {
+  const br = document.createElement('div');
+  br.className = 'ascii-break';
+  return br;
 }
 
 function toHex2(n) {
