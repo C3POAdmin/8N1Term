@@ -5,6 +5,7 @@ import { addToggle } 	  from'./components.js';
 import { emit, listen }   from '@tauri-apps/api/event'
 
 const 	root 		 	= document.getElementById('app');
+let		historyArray	= [];
 let 	auto_history 	= true;
 
 await   renderApp();
@@ -58,26 +59,20 @@ function handleHistory() {
     if (!btn) return;
 
     const idx = Number(btn.dataset.history);
-	console.log('History click',historyArray[idx]);
+	console.log('[History Click]',historyArray[idx]);
 	if(!historyArray[idx])
 		return;
 
-	tx_buffer = historyArray[idx].slice(); // shallow copy
 
 	if(auto_history == false) {
-		renderTXBytes(tx_buffer);
+		emit('history_to_tx',historyArray[idx]);
 		return;
 	} 
-
-	if(CR) {
-		tx_buffer.push(13);
-	} 
-	if(LF) {
-		tx_buffer.push(10);
+	try {
+		emit('history_to_send',historyArray[idx]);
+	} catch (e) {
+		console.log('history_to_send',e);
 	}
-
-	sendBytes(tx_buffer);
-	clearTX();
   });
 }
 
@@ -139,7 +134,7 @@ function startEpochUpdater(intervalMs = 1000) {
     });
   }
 
-  update(); // run immediately
+  update();
   return setInterval(update, intervalMs);
 }
 
@@ -147,7 +142,9 @@ function startListeners() {
 	listen("history_update", e => {
 		try {
 			console.log('[history_update]',e.payload);
+			historyArray = e.payload;
 			renderHistory(e.payload);
+			handleHistory();
 		} catch (e) {
 			console.log('[startListeners] history_update Error:',e);
 		}

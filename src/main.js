@@ -2,7 +2,7 @@ import './style.css';
 import './components.css';
 
 import { addToggle, addButton } from'./components.js';
-import { ASCII_CTRL, asciiDisplayName, renderTXBytes,  renderRXBytes } from './renderer.js'
+import { ASCII_CTRL, asciiDisplayName, renderRXBytes } from './renderer.js'
 
 import { CHECKSUM_DEFS }   		from './checksum_defs.js'
 import { computeChecksum } 		from './checksum_engine.js'
@@ -40,9 +40,6 @@ let		texthex 	 	= true;
  // keep for when persistance is added
 let		auto_history	= true;
 let		historyArray	= [];
-
-let 	hexEl 		 	= null;
-let 	textEl 		 	= null;
 
 let		polyToggle 		= null;
 let		initToggle 		= null;
@@ -104,13 +101,14 @@ await   		pickSerialPort(); // sets current_port internally
 current_baud 	= await pickBaudRate();
 await 		    renderSplit();
 displayChecksum();
-	
+
 const l_rx 			= document.querySelector("#l_rx");
 const r_rx 			= document.querySelector("#r_rx");
 const l_tx 			= document.querySelector("#l_tx");
 const r_tx 			= document.querySelector("#r_tx");
 const l_kb 			= document.querySelector("#l_kb");
 const r_kb 			= document.querySelector("#r_kb");
+
 const el_rx 		= document.querySelector("#rx_body");
 const el_rx_title   = document.getElementById("rx_title");
 const el_tx_hex		= document.querySelector("#tx-hex");
@@ -298,12 +296,21 @@ await drawAsciiKeyboard('kb_body', (code, label) => {
 });
 
 const tx = installAsciiKeyboardCapture({
-  hexDivId: 'tx-hex',
-  textDivId: 'tx-text',
   onByte: (byte) => {
 	  console.log('key_byte',byte);
   }
 });
+
+export function renderTXBytes(bytes) {
+	console.log(el_tx_hex);
+	bytes.forEach(code => {
+		const hx = toHex2(code);
+		el_tx_hex.textContent += (el_tx_hex.textContent ? ' ' : '') + hx;
+
+		const token = asciiDisplayName(code);
+		el_tx_text.textContent += token;
+	});
+}
 
 await connect(true);
 root.hidden = false;
@@ -824,19 +831,16 @@ function mapKeyboardEventToAscii(e) {
  * @returns {{ tx_buffer:number[], detach:()=>void, clear:()=>void }}
  */
  
-function installAsciiKeyboardCapture({ hexDivId, textDivId, onByte }) {
-  hexEl = document.getElementById(hexDivId);
-  textEl = document.getElementById(textDivId);
-  if (!hexEl || !textEl) throw new Error('hexDivId/textDivId not found');
+function installAsciiKeyboardCapture({ onByte }) {
 
   function appendByte(code) {
     tx_buffer.push(code);
-
+	console.log(el_tx_hex);
     const hx = toHex2(code);
-    hexEl.textContent += (hexEl.textContent ? ' ' : '') + hx;
+    el_tx_hex.textContent += (el_tx_hex.textContent ? ' ' : '') + hx;
 
     const token = asciiDisplayName(code);
-    textEl.textContent += token;
+    el_tx_text.textContent += token;
 
     flashAsciiKey(code, 300);
 	latchAsciiKey(code, 1500);
@@ -861,14 +865,14 @@ function installAsciiKeyboardCapture({ hexDivId, textDivId, onByte }) {
 				return;
 			tx_buffer.pop();
 
-			if (hexEl.textContent.length <= 2)
-			  hexEl.textContent = "";
+			if (el_tx_hex.textContent.length <= 2)
+			  el_tx_hex.textContent = "";
 			else
-			  hexEl.textContent = hexEl.textContent.slice(0, -3);
+			  el_tx_hex.textContent = el_tx_hex.textContent.slice(0, -3);
 
-			textEl.textContent = "";
+			el_tx_text.textContent = "";
 			for (const code of tx_buffer) {
-				textEl.textContent += asciiDisplayName(code);
+				el_tx_text.textContent += asciiDisplayName(code);
 			}
 			return;
 		} else if(code == 13) {
@@ -888,8 +892,8 @@ function installAsciiKeyboardCapture({ hexDivId, textDivId, onByte }) {
     },
     clear() {
       tx_buffer.length = 0;
-      hexEl.textContent = '';
-      textEl.textContent = '';
+      el_tx_hex.textContent = '';
+      el_tx_text.textContent = '';
     }
   };
 }
@@ -1467,8 +1471,36 @@ async function startListeners() {
 		}
 	});
 	
-	listen("history_get", () => {
-		emit('history_update', historyArray);
+	await listen("history_get", () => {
+		try {
+			emit('history_update', historyArray);
+		} catch (e) {
+			console.log('history_get',e);
+		}
+	});
+
+	await listen("history_to_tx", (event) => {
+		try {
+			tx_buffer = event.payload;
+			renderTXBytes(tx_buffer);
+		} catch (e) {
+			console.log('history_to_tx',e);
+		}
+	});
+
+	await listen("history_to_send", (event) => {
+		try {
+			let buf = event.payload;
+			if(CR) {
+				buf.push(13);
+			} 
+			if(LF) {
+				buf.push(10);
+			}
+			sendBytes(buf);
+		} catch (e) {
+			console.log('history_to_send',e);
+		}
 	});
 }
 
@@ -1686,7 +1718,6 @@ async function checksumTX() {
 	  getCode.addEventListener("click", async (e) => {
 		    await Swal.close();
 			await chooseCodeLanguage();
-				
 	  });
 	  
 	},
@@ -1860,7 +1891,11 @@ function addToHistory(bytes) {
 	historyArray.push([...bytes]);
 	if(historyArray.length > HISTORY_LENGTH)
 		historyArray.shift();
-	emit("history_update", historyArray);
+	try {
+		emit("history_update", historyArray);
+	} catch (e) {
+		console.log('history_update',e);
+	}
 }
 
 function toHex2(n) {
