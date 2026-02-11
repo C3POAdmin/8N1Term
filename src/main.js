@@ -102,17 +102,17 @@ current_baud 	= await pickBaudRate();
 await 		    renderSplit();
 displayChecksum();
 
-const l_rx 			= document.querySelector("#l_rx");
-const r_rx 			= document.querySelector("#r_rx");
-const l_tx 			= document.querySelector("#l_tx");
-const r_tx 			= document.querySelector("#r_tx");
-const l_kb 			= document.querySelector("#l_kb");
-const r_kb 			= document.querySelector("#r_kb");
+const r_rx 			= document.getElementById("r_rx");
+const l_tx 			= document.getElementById("l_tx");
+const r_tx 			= document.getElementById("r_tx");
+const l_rx 			= document.getElementById("l_rx");
+const l_kb 			= document.getElementById("l_kb");
+const r_kb 			= document.getElementById("r_kb");
 
-const el_rx 		= document.querySelector("#rx_body");
+const el_rx 		= document.getElementById("rx_body");
 const el_rx_title   = document.getElementById("rx_title");
-const el_tx_hex		= document.querySelector("#tx-hex");
-const el_tx_text	= document.querySelector("#tx-text");
+const el_tx_hex		= document.getElementById("tx-hex");
+const el_tx_text	= document.getElementById("tx-text");
 const el_connection = document.getElementById("connection");
 
 let   bytesEl		= null;		// set when capture window is open
