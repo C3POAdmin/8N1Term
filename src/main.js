@@ -300,7 +300,7 @@ const tx = installAsciiKeyboardCapture({
   }
 });
 
-export function renderTXBytes(bytes) {
+function renderTXBytes(bytes) {
 	console.log(el_tx_hex);
 	bytes.forEach(code => {
 		const hx = toHex2(code);
@@ -951,7 +951,7 @@ function insertPulldown({
   };
 }
 
-export async function pickBaudRate() {
+async function pickBaudRate() {
   const baudRates = [
     1200, 2400, 4800,
     9600, 14400, 19200,
@@ -1503,7 +1503,7 @@ async function startListeners() {
 	});
 }
 
-export async function openPlotterWindow() {
+async function openPlotterWindow() {
   const label = 'plotter'
 
 	try {
@@ -1536,7 +1536,7 @@ export async function openPlotterWindow() {
 	})
 }
 
-export async function openHistoryWindow() {
+async function openHistoryWindow() {
   const label = 'history'
 
 	try {
