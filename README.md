@@ -8,13 +8,13 @@
 
 ---
 
-### Single-Surface I/O
+### 🎛 Single-Surface I/O
 
 ![Main UI](screenshot.png)
 
 ---
 
-### Quick start (Windows & Linux)
+### ▶️ Quick start (Windows & Linux)
 
 - Run the installer ([Downloads](https://github.com/C3POAdmin/8N1Term/releases))
 - Select a serial port and baud rate
@@ -86,7 +86,7 @@ Each plotted data point includes:
 
 ---
 
-### 📤 Checksum UI
+### 🧮 Checksum UI
 
 Supports the following checksum algorithms:
 
@@ -121,7 +121,7 @@ The generated code is saved to a text file and opened using your operating syste
 
 ---
 
-### 📤 File loading & representation
+### 💾 File loading & representation
 
 - **TXT**: As-is  
 - **RAW**: As-is  
