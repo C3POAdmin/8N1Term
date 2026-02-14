@@ -1480,8 +1480,8 @@ async function startListeners() {
 
 	await listen("history_to_tx", (event) => {
 		try {
-			tx_buffer = event.payload;
-			renderTXBytes(tx_buffer);
+			tx_buffer += event.payload;
+			renderTXBytes(event.payload);
 		} catch (e) {
 			console.log('history_to_tx',e);
 		}
