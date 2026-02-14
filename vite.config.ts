@@ -6,7 +6,8 @@ export default defineConfig({
       input: {
         main: 'index.html',
         plotter: 'plotter.html',
-		history: 'history.html'
+		history: 'history.html',
+		modbus: 'modbus.html'
       }
     }
   }
