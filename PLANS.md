@@ -39,6 +39,35 @@ The terminal itself never switches modes, hides bytes, or assumes project contex
 
 ---
 
+## 🧱 Modbus Apply (Frame Composer)
+
+Add a **Modbus | Apply** button to the main TX surface.
+
+### Purpose
+
+Allow the user to enter **Modbus payload only** (function + data) and automatically:
+
+- Prepend configured Slave ID  
+- Append CRC-16-Modbus (LSB first)  
+- Send as a single atomic frame  
+
+No separate “Modbus mode”.  
+This is a transformation layer over raw I/O.
+
+---
+
+### Settings (Popup)
+
+Minimal configuration:
+
+- **Slave Address** (1–247, 0 = broadcast)
+
+CRC is always appended (RTU only).  
+Serial parameters remain part of the main serial configuration.
+
+---
+
+
 ## Concept: Analysis Windows
 
 Introduce **analysis windows** as optional, parallel tools that observe the live data stream without altering the core terminal UI.
