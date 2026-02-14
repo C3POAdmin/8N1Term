@@ -131,6 +131,13 @@ document.getElementById("restart").addEventListener("click", restartApp);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
+  '<button style="float:right;margin-right:10px;border-color: rgba(100, 149, 200, 0.95);" class="component-btn component-btn-small" id="clear_rx">Clear</button>'
+);
+const el_clear = document.getElementById("clear_rx")
+el_clear.addEventListener("click", clearRX);
+
+r_rx.insertAdjacentHTML(
+  'beforeend',
   '<button style="float:right;margin-right:10px" class="component-btn component-btn-small" id="save">Save</button>'
 );
 document.getElementById("save").addEventListener("click", saveBytes);
@@ -150,13 +157,6 @@ r_rx.insertAdjacentHTML(
 const el_connect = document.getElementById("connect")
 el_connect.addEventListener("click", openPort);
 el_connect.hidden = true;
-
-r_rx.insertAdjacentHTML(
-  'beforeend',
-  '<button style="float:right;margin-right:10px;" class="component-btn component-btn-small" id="clear_rx">Clear</button>'
-);
-const el_clear = document.getElementById("clear_rx")
-el_clear.addEventListener("click", clearRX);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
@@ -210,6 +210,12 @@ document.getElementById("re-send").addEventListener("click", reSendBuffer);
 
 r_tx.insertAdjacentHTML(
   'beforeend',
+  '<button style="float:right;margin-right:10px;margin-top:-2px;border-color: rgba(100, 149, 200, 0.95);" class="component-btn component-btn-small" id="clear_tx">Clear</button>'
+);
+document.getElementById("clear_tx").addEventListener("click", clearTX);
+
+r_tx.insertAdjacentHTML(
+  'beforeend',
   '<button style="float:right;margin-right:10px;margin-top:-2px" class="component-btn component-btn-small" id="load">Load</button>'
 );
 document.getElementById("load").addEventListener("click", loadBytes);
@@ -219,13 +225,6 @@ r_tx.insertAdjacentHTML(
   '<button style="float:right;margin-right:10px;margin-top:-2px" class="component-btn component-btn-small" id="paste">Paste</button>'
 );
 document.getElementById("paste").addEventListener("click", pasteTX);
-
-r_tx.insertAdjacentHTML(
-  'beforeend',
-  '<button style="float:right;margin-right:10px;margin-top:-2px" class="component-btn component-btn-small" id="clear_tx">Clear</button>'
-);
-document.getElementById("clear_tx").addEventListener("click", clearTX);
-
 
 r_tx.insertAdjacentHTML(
   'beforeend',
