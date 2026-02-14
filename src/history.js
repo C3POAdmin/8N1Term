@@ -4,9 +4,10 @@ import { renderRXBytes }  from './renderer.js';
 import { addToggle } 	  from'./components.js';
 import { emit, listen }   from '@tauri-apps/api/event'
 
-const 	root 		 	= document.getElementById('app');
-let		historyArray	= [];
-let 	auto_history 	= true;
+const 	root 		 			 = document.getElementById('app');
+let		historyArray			 = [];
+let 	auto_history 			 = true;
+let		button_listeners_enabled = false;
 
 await   renderApp();
 await	startListeners();
@@ -52,6 +53,10 @@ function renderHistory(historyArray) {
 }
 
 function handleHistory() {
+	if(button_listeners_enabled)
+		return;
+	button_listeners_enabled = true;
+	
   const root = document.getElementById("select_history");
 
   root.addEventListener("click", (e) => {
@@ -154,7 +159,7 @@ function startListeners() {
 
 function renderApp() {
 	root.innerHTML = 
-	`<div class="ft-wrap" style="padding-bottom:2px;padding:5px;" role="table" id="select_history"></div>
+	`<div style="padding-bottom:2px;padding:5px;height:calc( 99% - 30px );overflow-y:scroll" id="select_history"></div>
 	 <div style="margin-top:5px;margin-left:-10px" id="auto-send-outer"></div>`;
     const el = document.querySelector("#auto-send-outer");
 	const tog_auto_history = addToggle(el, {
