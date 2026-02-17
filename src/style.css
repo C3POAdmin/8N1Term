@@ -331,11 +331,11 @@ body {
 }
 
 .tx-hex {
-  border-color: rgba(34, 255, 136, 0.95);
+  border-color: rgba(60, 175, 120, 0.75);
 }
 
 .tx-text {
-  border-color: rgba(255,255,255,0.85);
+  border-color: rgba(148, 163, 184, 0.75);
 }
 
 .ascii-key.ascii-latched {

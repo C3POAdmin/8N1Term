@@ -125,7 +125,7 @@ console.log('[Selected]', current_port, current_baud);
 
 r_rx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right" class="component-btn component-btn-small" id="restart">New</button>'
+  '<button style="float:right;border-color: rgba(200, 90, 90, 0.75);" class="component-btn component-btn-small" id="restart">New</button>'
 );
 document.getElementById("restart").addEventListener("click", restartApp);
 
@@ -204,7 +204,7 @@ const tog_scroll = addToggle(l_rx, {
 //-----------------------------TX-------------------//
 r_tx.insertAdjacentHTML(
   'beforeend',
-  '<button style="float:right;margin-right:-3px;margin-top:-2px" class="component-btn component-btn-small"  id="re-send">RE-SEND</button>'
+  '<button style="float:right;margin-right:-3px;margin-top:-2px; border-color: rgba(60, 175, 120, 0.75);" class="component-btn component-btn-small"  id="re-send">RE-SEND</button>'
 );
 document.getElementById("re-send").addEventListener("click", reSendBuffer);
 
@@ -450,7 +450,7 @@ root.innerHTML =
 			<div class="tx-box tx-text" id="tx-text"></div>
 		  </div>
 		</div>
-		<button style="height:100%;" class="component-btn no-select" id="send">SEND</button>
+		<button style="height:100%;border-color: rgba(60, 175, 120, 0.75);" class="component-btn no-select" id="send">SEND</button>
 	  </div>
 	</div>
 
