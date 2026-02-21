@@ -38,14 +38,16 @@ export function renderRXBytes(values, tx = false, checksum = false) {
 	if (code >= 0x21 && code <= 0x7E) {
 	  label = String.fromCharCode(code);
 	  isAsciiPrintable = true;
-	  useSmallGlyph = true;
 	} else if (code === 0x20) {
+	  useSmallGlyph = true;
 	  label = 'SPACE';
 	} else if (code === 0x7F) {
 	  label = 'DEL';
 	} else if (code < 0x20) {
+	  useSmallGlyph = true;
 	  label = ASCII_CTRL[code] ?? '';
 	} else {
+	  useSmallGlyph = true;
 	  label = hex;
 	}
 
