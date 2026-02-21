@@ -293,6 +293,10 @@ body {
   font-size: 8px;
 }
 
+.ascii-med {
+  font-size: 10px;
+}
+
 .ascii-key.ascii-hot {
   border-color: rgba(0, 255, 255, 0.95);
   transform: translateY(1px);

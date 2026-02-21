@@ -33,18 +33,23 @@ export function renderRXBytes(values, tx = false, checksum = false) {
     let isPrintable = false;
 
 	let isAsciiPrintable = false;
+	let isAsciiHide = false;
 	let useSmallGlyph = false;
+	let useMedGlyph = false;
 
 	if (code >= 0x21 && code <= 0x7E) {
 	  label = String.fromCharCode(code);
 	  isAsciiPrintable = true;
 	} else if (code === 0x20) {
 	  useSmallGlyph = true;
+	  isAsciiHide = true;
 	  label = 'SPACE';
 	} else if (code === 0x7F) {
+	  isAsciiHide = true;
 	  label = 'DEL';
 	} else if (code < 0x20) {
-	  useSmallGlyph = true;
+	  isAsciiHide = true;
+	  useMedGlyph = true;
 	  label = ASCII_CTRL[code] ?? '';
 	} else {
 	  useSmallGlyph = true;
@@ -59,14 +64,12 @@ export function renderRXBytes(values, tx = false, checksum = false) {
 	  <span class="ascii-hex">${hex}</span>
 	  <span class="ascii-label 
 		${!isAsciiPrintable ? 'ascii-raw' : ''} 
-		${useSmallGlyph ? 'ascii-small' : ''}">
+		${isAsciiHide ? 'ascii-hide' : ''} 
+		${useSmallGlyph ? 'ascii-small' : ''}
+		${useMedGlyph ? 'ascii-med' : ''}">
 		${label}
 	  </span>
 	`;
-    // Hide layout-only bytes
-    if (code === 13 || code === 10 || code === 32) {
-      cell.classList.add('ascii-hide');
-    }
 
     frag.appendChild(cell);
 
