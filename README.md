@@ -105,11 +105,7 @@ All CRC variants are parameterised and support:
 - Custom initial value  
 - Custom XOR seed (where applicable)
 
----
-
-### 🧾 Get-the-Code Button
-
-Generates reference-grade checksum code using your **selected or custom parameters** in the following languages:
+**Get the code button** Generates reference-grade checksum code using your **selected or custom parameters** in the following languages:
 
 - C / C++  
 - C#  
