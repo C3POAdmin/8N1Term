@@ -32,35 +32,35 @@ export function renderRXBytes(values, tx = false, checksum = false) {
     let label = '';
     let isPrintable = false;
 
-    // ---- label resolution (gfx only) ----
-    if (code < 32) {
-      label = ASCII_CTRL[code] ?? '';
-    } else if (code === 32) {
-      label = 'SPACE';
-      isPrintable = true;
-    } else if (code === 127) {
-      label = 'DEL';
-    } else if (code >= 0x20 && code <= 0x7E) {
-      label = String.fromCharCode(code);
-      isPrintable = true;
-    }
-    // 128–255 → intentionally blank label
-    // ------------------------------------
+	let isAsciiPrintable = false;
+	let useSmallGlyph = false;
 
-    const cell = document.createElement('div');
-    cell.className = tx ? 'ascii-tx' : 'ascii-rx';
-    cell.classList.add('border-hide');
-	//if(checksum)
-	//	cell.classList.add('ascii-checksum');
-		
+	if (code >= 0x21 && code <= 0x7E) {
+	  label = String.fromCharCode(code);
+	  isAsciiPrintable = true;
+	  useSmallGlyph = true;
+	} else if (code === 0x20) {
+	  label = 'SPACE';
+	} else if (code === 0x7F) {
+	  label = 'DEL';
+	} else if (code < 0x20) {
+	  label = ASCII_CTRL[code] ?? '';
+	} else {
+	  label = hex;
+	}
 
-    cell.innerHTML = `
-      <span class="ascii-hex">${hex}</span>
-      <span class="ascii-label ${!isPrintable ? 'ascii-raw' : ''} ${code == 32 ? 'ascii-small' : ''}">
-        ${label}
-      </span>
-    `;
+	const cell = document.createElement('div');
+	cell.className = tx ? 'ascii-tx' : 'ascii-rx';
+	cell.classList.add('border-hide');
 
+	cell.innerHTML = `
+	  <span class="ascii-hex">${hex}</span>
+	  <span class="ascii-label 
+		${!isAsciiPrintable ? 'ascii-raw' : ''} 
+		${useSmallGlyph ? 'ascii-small' : ''}">
+		${label}
+	  </span>
+	`;
     // Hide layout-only bytes
     if (code === 13 || code === 10 || code === 32) {
       cell.classList.add('ascii-hide');
