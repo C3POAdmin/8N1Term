@@ -81,7 +81,6 @@ Each plotted data point includes:
 - **Extracted numeric value**
 - **Time-of-day timestamp** with millisecond precision (`HH:MM:SS.mmm`)
 - **Date on x axis**
-- **Min/Max filter**
 
 ![Data Plotter](screenshot-Plotter.png)
 
