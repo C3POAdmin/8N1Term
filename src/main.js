@@ -655,7 +655,7 @@ async function pickSerialPort() {
 			<input 
 		      style="width:200px"
 			  id="path-input"
-			  class="ft-input"
+			  class="component-input"
 			  placeholder="custom device path → Enter"
 			/>
 		  </div>
@@ -977,7 +977,7 @@ async function pickBaudRate() {
 	  <div class="ft-custom">
 		<input
 		  id="baud-input"
-		  class="ft-input"
+		  class="component-input"
 		  type="number"
 		  min="1"
 		  placeholder="custom baud → Enter"
@@ -1649,7 +1649,7 @@ async function checksumTX() {
 			  <div id="checksum-poly-toggle"></div>
 			  <input
 				id="checksum-poly-input"
-				class="ft-input"
+				class="component-input"
 				style="width:140px"
 				placeholder="poly (hex)"
 				disabled
@@ -1658,7 +1658,7 @@ async function checksumTX() {
 			  <div id="checksum-init-toggle"></div>
 			  <input
 				id="checksum-init-input"
-				class="ft-input"
+				class="component-input"
 				style="width:140px"
 				placeholder="init (hex)"
 				disabled

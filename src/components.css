@@ -1,7 +1,7 @@
 .component-btn {
   appearance: none;
   border: 2px solid rgba(148, 163, 184, 0.80);
-  background: rgba(2, 6, 23, 0.6);
+  background: rgba(102, 106, 230, 0.13);
   color: rgba(229, 231, 235, 0.80);
   padding: 10px 10px;
   border-radius: 10px;
@@ -64,7 +64,7 @@
   position: relative;
   cursor: pointer;
   padding: 0;
-  background-color:transparent;
+  background: rgba(102, 106, 230, 0.13);
 }
 
 .component-toggle:hover {
@@ -99,4 +99,25 @@
 .component-toggle.on .component-toggle-knob {
   transform: translateX(21px);
   background: #22c55e;
+}
+
+.component-input {
+  width: 100%;
+  height: 32px;
+  padding: 2px 6px;
+  font-size: 13px;
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  background: rgba(2, 6, 23, 0.6);
+  color: #e5e7eb;
+   border-radius: 8px;
+}
+
+.component-input:hover {
+  border-color: rgba(148, 163, 184, 0.65);
+  background: rgba(2, 6, 23, 0.75);
+}
+
+.component-input:active {
+  transform: translateY(1px);
+  border-color: rgba(148, 163, 184, 1);
 }
