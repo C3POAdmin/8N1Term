@@ -121,3 +121,70 @@
   transform: translateY(1px);
   border-color: rgba(148, 163, 184, 1);
 }
+
+.ctrl-btn {
+  width: 28px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ctrl-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+.icon-play::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 3px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid #ccc;
+}
+
+.icon-pause::before,
+.icon-pause::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  width: 5px;
+  height: 14px;
+  background: #ccc;
+}
+
+.icon-pause::before {
+  left: 4px;
+}
+
+.icon-pause::after {
+  right: 4px;
+}
+
+.icon-stop::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  background: #ccc;
+}
+
+
+
+
