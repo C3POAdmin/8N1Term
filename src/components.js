@@ -78,14 +78,14 @@ export function addToggle(parent, {
 }
 
 /* Usage of session cluster
-const session = createSessionCluster('#top-bar', {
+const session = addSessionCluster('#top-bar', {
   onStart: () => console.log('started'),
   onPause: () => console.log('paused'),
   onStop:  () => console.log('stopped')
 });
 */
 
-function createSessionCluster(containerSelector, callbacks = {}) {
+function addSessionCluster(containerSelector, callbacks = {}) {
   const container = document.querySelector(containerSelector);
   if (!container) return null;
 
