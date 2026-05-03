@@ -255,6 +255,11 @@ body {
   transform: translateY(1px);
 }
 
+/* stops browser hijack of button colour: from click then key tap */
+button:focus {
+  outline: none;
+}
+
 /* Hex (top-left) */
 .ascii-hex, .ascii-hex2 {
   position: absolute;

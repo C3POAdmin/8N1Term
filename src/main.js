@@ -840,8 +840,8 @@ function installAsciiKeyboardCapture({ onByte }) {
     const token = asciiDisplayName(code);
     el_tx_text.textContent += token;
 
-    flashAsciiKey(code, 300);
-	latchAsciiKey(code, 1500);
+    //flashAsciiKey(code, 300);
+	//latchAsciiKey(code, 1500);
 
     if (onByte) onByte(code);
   }
