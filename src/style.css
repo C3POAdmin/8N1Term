@@ -241,10 +241,9 @@ body {
   align-items: center;
   justify-content: center;
 
-  transition:
-    transform 0.04s ease,
-    border-color 0.12s ease;
-	overflow: hidden;
+  overflow: hidden;
+
+  transition: transform 0.04s ease, border-color 0.12s ease;
 }
 
 .ascii-key:hover {
