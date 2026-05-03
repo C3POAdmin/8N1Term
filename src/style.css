@@ -255,7 +255,7 @@ body {
   transform: translateY(1px);
 }
 
-/* stops browser hijack of button colour: from click then key tap */
+/* stops browser hijack of button border colour from click then key tap */
 button:focus {
   outline: none;
 }
